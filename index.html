@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timezone & IP Checker - 100% Accurate</title>
+    
+    <!-- Tailwind CSS for styling without any build tools -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        body {
+            background-color: #0b0f16;
+            color: #e5e7eb;
+            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        }
+        
+        .card {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 1.25rem;
+        }
+        
+        .divider {
+            border-bottom: 1px solid #1f2937;
+        }
+        
+        .divider:last-child {
+            border-bottom: none;
+        }
+        
+        .text-value {
+            color: #f9fafb;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+        
+        .label-text {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #9ca3af;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Custom Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #1f2937;
+            color: #fff;
+            text-align: center;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+        }
+        
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.3s, fadeout 0.3s 2.5s;
+        }
+        
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+        
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+    </style>
+</head>
+<body class="p-2 md:p-8 flex flex-col items-center min-h-screen pt-4 pb-8">
+
+    <!-- Search Area (Outside Card) -->
+    <div class="w-full max-w-[440px] mb-3">
+        <form id="searchForm" onsubmit="event.preventDefault(); searchIP();" class="relative">
+            <input type="text" id="ipSearchInput" placeholder="Enter IP address to check..." class="w-full bg-[#111827] border border-gray-700 text-sm text-gray-300 rounded-[1rem] px-4 py-3 shadow-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-600">
+            <button type="submit" class="absolute right-2 top-2 p-1.5 text-gray-500 hover:text-blue-500 transition-colors">
+                <i data-lucide="search" class="w-4 h-4"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Card Container -->
+    <div class="card w-full max-w-[440px] flex flex-col shadow-2xl overflow-hidden">
+        
+        <!-- Header / Score Area -->
+        <div class="p-4 relative">
+            <div class="flex justify-between items-center mb-1">
+                <div id="usage-status" class="text-[0.65rem] font-bold text-gray-500 tracking-wider">CHECKING DB...</div>
+                <button onclick="fetchData()" id="reloadBtn" class="flex items-center gap-1.5 text-[0.75rem] font-semibold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 px-2.5 py-1.5 rounded-lg transition-colors border border-blue-500/20">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reload
+                </button>
+            </div>
+            
+            <div class="flex justify-between items-end mt-1">
+                <div class="text-5xl font-extrabold tracking-tight" id="score">0%</div>
+                <div id="secure-badge" class="px-3 py-1 mb-1 text-[0.7rem] font-bold text-gray-400 border border-gray-600 rounded bg-gray-800/50">CHECKING</div>
+            </div>
+            
+            <!-- Dynamic Progress Bar -->
+            <div class="h-1.5 w-full bg-gray-800 mt-4 rounded-full overflow-hidden">
+                <div id="score-bar" class="h-full bg-blue-500 w-0 transition-all duration-1000 ease-out"></div>
+            </div>
+        </div>
+
+        <!-- Details List -->
+        <div id="details-list" class="flex flex-col border-t border-gray-800 bg-[#0d1117]/50 text-sm"></div>
+
+        <!-- Footer Synced status -->
+        <div class="p-3 px-5 flex justify-between items-center bg-[#111827] border-t border-gray-800 rounded-b-[1.25rem]">
+            <div class="flex items-center gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-gray-500 shadow-[0_0_8px_rgba(34,197,94,0)] transition-all duration-500" id="sync-dot"></div>
+                <div class="text-[0.6rem] font-bold text-gray-400 tracking-[0.1em]" id="sync-text">WAITING</div>
+            </div>
+            <div class="text-[0.8rem] font-mono font-medium text-gray-300 tracking-wide" id="current-time">--:--:--</div>
+        </div>
+    </div>
+
+    <!-- Toast Component -->
+    <div id="toast">Copied to clipboard</div>
+
+    <script>
+        // Init Lucide Icons globally
+        lucide.createIcons();
+
+        // Object cache for easy copying
+        let globalData = {};
+        
+        // Supabase configuration
+        const SUPABASE_URL = 'https://tibnmcjnuzkibkoaluwl.supabase.co/rest/v1/';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpYm5tY2pudXpraWJrb2FsdXdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MDMyNzIsImV4cCI6MjA5MzI3OTI3Mn0.eRNIedq5wO3LcHnvCW7fFrqkVj07MxZ5oW-cERkmFXM';
+        const SUPABASE_TABLE = 'ips'; // Assumed table name for checking Usage
+
+        // Detect OS and assign accurate icon
+        const getOS = () => {
+            const p = navigator.platform, u = navigator.userAgent;
+            if (/Mac/.test(p)) return 'Mac OS';
+            if (/Win/.test(p)) return 'Windows';
+            if (/iPhone|iPad|iPod/.test(p)) return 'iOS';
+            if (/Android/.test(u)) return 'Android';
+            if (/Linux/.test(p)) return 'Linux';
+            return 'Unknown System';
+        };
+
+        const setupOS = () => {
+            const osName = getOS();
+            document.getElementById('os').innerText = osName;
+            
+            const osIcon = document.getElementById('os-icon');
+            if(osName === 'Android' || osName === 'iOS') {
+                osIcon.setAttribute('data-lucide', 'smartphone');
+            } else {
+                osIcon.setAttribute('data-lucide', 'monitor');
+            }
+            lucide.createIcons();
+        };
+
+        // Live clock running in the footer
+        setInterval(() => {
+            const now = new Date();
+            let options = {
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit'
+            };
+            if (globalData && globalData.timezone && globalData.timezone !== 'Unknown') {
+                try {
+                    options.timeZone = globalData.timezone;
+                } catch(e) {}
+            }
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', options);
+        }, 1000);
+        
+        function searchIP() {
+            const val = document.getElementById('ipSearchInput').value.trim();
+            fetchData(val);
+        }
+
+        async function checkSupabaseUsedStatus(ip) {
+            const usageEl = document.getElementById('usage-status');
+            usageEl.innerText = "CHECKING DB...";
+            usageEl.className = "text-[0.65rem] font-bold text-gray-500 tracking-wider";
+            let isUsed = false;
+            
+            try {
+                // Check if IP exists
+                const res = await fetch(`${SUPABASE_URL}${SUPABASE_TABLE}?ip=eq.${ip}&select=created_at&limit=1`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if(data && data.length > 0) {
+                        // IP has been used
+                        let dateStr = "PREVIOUSLY USED";
+                        if(data[0].created_at) {
+                            const parsed = new Date(data[0].created_at);
+                            if(!isNaN(parsed)) {
+                                const diffS = Math.floor((new Date() - parsed) / 1000);
+                                if (diffS < 60) dateStr = diffS <= 10 ? "USED JUST NOW" : `USED ${diffS}S AGO`;
+                                else if (diffS < 3600) dateStr = `USED ${Math.floor(diffS/60)}M AGO`;
+                                else if (diffS < 86400) dateStr = `USED ${Math.floor(diffS/3600)}H AGO`;
+                                else dateStr = `USED ${Math.floor(diffS/86400)}D AGO`;
+                            }
+                        }
+                        usageEl.innerText = dateStr;
+                        usageEl.className = "text-[0.65rem] font-bold text-rose-500 tracking-wider";
+                        isUsed = true;
+                    } else {
+                        // IP is fresh/unused
+                        usageEl.innerText = "UNUSED (CLEAN)";
+                        usageEl.className = "text-[0.65rem] font-bold text-emerald-500 tracking-wider";
+                        
+                        // Insert as used now
+                        fetch(`${SUPABASE_URL}${SUPABASE_TABLE}`, {
+                            method: 'POST',
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=minimal, resolution=ignore-duplicates'
+                            },
+                            body: JSON.stringify({ ip: ip })
+                        }).catch(e => console.log('Insert failed (maybe table missing)', e));
+                    }
+                } else {
+                    usageEl.innerText = "UNUSED (API ERROR)";
+                }
+            } catch (e) {
+                console.error("Supabase error", e);
+                usageEl.innerText = "UNUSED (DEFAULT)";
+            }
+            return isUsed;
+        }
+
+        // Core data fetching logic (IPv4 & IPv6 supported)
+        async function fetchData(targetIp = "") {
+            const btn = document.getElementById('reloadBtn');
+            const btnIcon = btn.querySelector('svg');
+            
+            // Activate Loading State
+            btnIcon.classList.add('animate-spin');
+            const syncDot = document.getElementById('sync-dot');
+            syncDot.className = 'w-1.5 h-1.5 rounded-full bg-gray-500 shadow-[0_0_8px_rgba(34,197,94,0)] transition-all duration-500';
+            document.getElementById('sync-text').innerText = 'CHECKING...';
+            
+            const scoreEl = document.getElementById('score');
+            scoreEl.innerText = '0%';
+            scoreEl.style.color = '#6b7280';
+            
+            const scoreBar = document.getElementById('score-bar');
+            scoreBar.style.width = '0%';
+            scoreBar.style.backgroundColor = '#6b7280';
+            
+            const badge = document.getElementById('secure-badge');
+            badge.innerText = 'CHECKING';
+            badge.style.color = '#9ca3af';
+            badge.style.borderColor = '#4b5563';
+            badge.style.backgroundColor = 'rgba(31, 41, 55, 0.5)';
+            
+            const usageEl = document.getElementById('usage-status');
+            if(usageEl) {
+                usageEl.innerText = 'CHECKING DB...';
+                usageEl.className = 'text-[0.65rem] font-bold text-gray-500 tracking-wider';
+            }
+
+            const fields = ['ip', 'asn', 'city', 'country', 'region', 'os', 'isp', 'timezone'];
+            fields.forEach(f => {
+                const el = document.getElementById(f);
+                if(el) el.innerText = 'Loading...';
+            });
+            
+            let queryUrlAdd = targetIp ? `/${targetIp}` : '';
+            if(queryUrlAdd.startsWith('//')) queryUrlAdd = queryUrlAdd.substring(1);
+            
+            try {
+                let data = null;
+                const providers = [
+                    async () => fetch(`https://ipwho.is${queryUrlAdd}`).then(r => r.json()).then(j => {
+                        if (!j.success) throw new Error();
+                        return { ip: j.ip, asn: 'AS'+(j.connection?.asn||'Unknown'), city: j.city, country: j.country_code, region: j.region, isp: j.connection?.isp||'Unknown', timezone: j.timezone?.id, proxy: j.security?.proxy||false, vpn: j.security?.vpn||false, tor: j.security?.tor||false, hosting: j.security?.hosting||false };
+                    }),
+                    async () => fetch(`https://ipapi.co/${targetIp||''}/json/`.replace('//j', '/j')).then(r => r.json()).then(j => {
+                        if (j.error) throw new Error();
+                        return { ip: j.ip, asn: j.asn, city: j.city, country: j.country, region: j.region, isp: j.org, timezone: j.timezone, proxy: false, vpn: false, tor: false };
+                    }),
+                    async () => fetch(`https://get.geojs.io/v1/ip/geo${targetIp?`/${targetIp}`:''}.json`).then(r => r.json()).then(j => {
+                        return { ip: j.ip, asn: j.asn?'AS'+j.asn:'Unknown', city: j.city, country: j.country_code, region: j.region, isp: j.organization_name, timezone: j.timezone, proxy: false, vpn: false, tor: false };
+                    })
+                ];
+
+                for (const provider of providers) {
+                    try {
+                        data = await provider();
+                        if (data && data.ip) break; // Found valid data
+                    } catch (e) {
+                        console.warn('Provider failed check:', e);
+                    }
+                }
+
+                if (!data || !data.ip) {
+                    throw new Error('All IP providers failed or were blocked');
+                }
+
+                globalData = data;
+
+                // Sync data into DOM
+                document.getElementById('ip').innerText = data.ip || 'Unknown';
+                document.getElementById('asn').innerText = data.asn || 'Unknown';
+                document.getElementById('city').innerText = data.city || 'Unknown';
+                document.getElementById('country').innerText = data.country || 'Unknown';
+                document.getElementById('region').innerText = data.region || 'Unknown';
+                document.getElementById('isp').innerText = data.isp || 'Unknown';
+                document.getElementById('timezone').innerText = data.timezone || 'Unknown';
+                
+                setupOS(); // Reset OS flag from browser agent
+
+                // 1. Check Supabase Usage
+                const isUsed = await checkSupabaseUsedStatus(data.ip);
+
+                // 2. Calculate Anonymity Score
+                calculateScore(data, isUsed);
+
+            } catch (error) {
+                console.error("Failed to load IP details", error);
+                const errFields = ['ip', 'asn', 'city', 'country', 'region', 'os', 'isp', 'timezone'];
+                errFields.forEach(f => {
+                    const el = document.getElementById(f);
+                    if(el) el.innerText = 'Error';
+                });
+                document.getElementById('sync-text').innerText = "ERROR";
+            } finally {
+                btnIcon.classList.remove('animate-spin');
+            }
+        }
+
+        // Logic for comparing System Time vs IP Time & Computing Score
+        function calculateScore(ipData, isUsed) {
+            // Get local machine timezone directly from browser Intl API
+            const sysTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const ipTimezone = ipData.timezone;
+            
+            let score = 100;
+            let statusText = "SECURE";
+            let colorHex = "#10b981"; // Emerald green
+            
+            // Deductions
+            if (sysTimezone !== ipTimezone) {
+                score -= 20; // 20% penalty for timezone mismatch
+                statusText = "MISMATCH";
+            }
+            
+            if (isUsed) {
+                score -= 10; // 10% penalty if IP was used before
+            }
+            
+            if (ipData.proxy || ipData.tor || ipData.vpn || ipData.hosting) {
+                score -= 40; // 40% penalty for suspected proxy/vpn/hosting
+            }
+            
+            // Adjust texts and colors based on score
+            if (score === 100) {
+                colorHex = "#10b981"; // Green
+                statusText = "SECURE";
+            } else if (score >= 70) {
+                colorHex = "#f59e0b"; // Orange/Yellow
+                statusText = "WARNING";
+            } else {
+                colorHex = "#ef4444"; // Red for highly suspicious
+                statusText = "DANGER";
+            }
+            
+            const scoreEl = document.getElementById('score');
+            const badge = document.getElementById('secure-badge');
+            const bar = document.getElementById('score-bar');
+            
+            const syncDot = document.getElementById('sync-dot');
+            const syncText = document.getElementById('sync-text');
+
+            // Apply to DOM
+            scoreEl.innerText = score + "%";
+            scoreEl.style.color = colorHex;
+            
+            badge.innerText = statusText;
+            badge.style.color = colorHex;
+            badge.style.borderColor = colorHex;
+            badge.style.backgroundColor = colorHex + "1a"; // 10% opacity
+            
+            bar.style.width = score + "%";
+            bar.style.backgroundColor = colorHex;
+            
+            syncDot.style.backgroundColor = colorHex;
+            syncDot.style.boxShadow = score >= 90 ? `0 0 8px ${colorHex}b3` : 'none';
+            syncText.innerText = score >= 90 ? "SYNCED" : "FLAGGED";
+        }
+
+        // Function allowing click-to-copy
+        function copyText(id) {
+            let text = document.getElementById(id).innerText;
+            if(text && text !== '...' && text !== 'Unknown') {
+                if (id === 'asn' && text.startsWith('AS')) {
+                    text = text.substring(2);
+                } else if (id === 'timezone') {
+                    if (text.includes('/')) {
+                        text = text.split('/').pop().replace(/_/g, ' ');
+                    }
+                }
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast();
+                });
+            }
+        }
+
+        // Toast display handler
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2800);
+        }
+
+        const fieldsCfg = [
+            { id: 'ip', label: 'IP ADDRESS', icon: 'wifi', mono: true },
+            { id: 'asn', label: 'ASN', icon: 'shield', mono: true, copy: true },
+            { id: 'city', label: 'CITY', icon: 'map-pin' },
+            { id: 'country', label: 'COUNTRY', icon: 'globe' },
+            { id: 'region', label: 'REGION', icon: 'map' },
+            { id: 'os', label: 'OS', icon: 'monitor' },
+            { id: 'isp', label: 'ISP', icon: 'server', trunc: true },
+            { id: 'timezone', label: 'TIMEZONE', icon: 'clock', copy: true }
+        ];
+
+        document.getElementById('details-list').innerHTML = fieldsCfg.map(f => `
+            <div class="py-2 px-4 divider flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="${f.icon}" class="text-gray-400 w-4 h-4 flex-shrink-0" id="${f.id}-icon"></i>
+                    <div class="label-text mb-0">${f.label}</div>
+                </div>
+                <div class="${f.copy ? 'flex items-center gap-2' : ''}">
+                    <div class="text-value text-sm text-right ${f.mono ? 'font-mono tracking-tight' : ''} ${f.trunc ? 'truncate max-w-[200px]' : ''}" id="${f.id}">...</div>
+                    ${f.copy ? `<button onclick="copyText('${f.id}')" class="p-1 hover:bg-gray-800 rounded-md transition-colors text-gray-500 hover:text-white"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>` : ''}
+                </div>
+            </div>`).join('');
+
+        // Kickoff logic on page load
+        setupOS();
+        fetchData();
+    </script>
+</body>
+</html>
