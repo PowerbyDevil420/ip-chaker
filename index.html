@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timezone & IP Checker - 100% Accurate</title>
+    
+    <!-- Tailwind CSS for styling without any build tools -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        body {
+            background-color: #0b0f16;
+            color: #e5e7eb;
+            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        }
+        
+        .card {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 1.25rem;
+        }
+        
+        .divider {
+            border-bottom: 1px solid #1f2937;
+        }
+        
+        .divider:last-child {
+            border-bottom: none;
+        }
+        
+        .text-value {
+            color: #f9fafb;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+        
+        .label-text {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #9ca3af;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Custom Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #1f2937;
+            color: #fff;
+            text-align: center;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+        }
+        
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.3s, fadeout 0.3s 2.5s;
+        }
+        
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+        
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex justify-center min-h-screen items-start pt-8 pb-12">
+
+    <!-- Main Card Container -->
+    <div class="card w-full max-w-[440px] flex flex-col shadow-2xl overflow-hidden">
+        
+        <!-- Header / Score Area -->
+        <div class="p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <div class="text-[0.7rem] font-bold text-rose-500 tracking-wider">USED JUST NOW</div>
+                <button onclick="fetchData()" id="reloadBtn" class="flex items-center gap-1.5 text-[0.8rem] font-semibold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1.5 rounded-lg transition-colors border border-blue-500/20">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reload
+                </button>
+            </div>
+            
+            <div class="label-text">ANONYMITY SCORE</div>
+            <div class="flex justify-between items-end mt-1">
+                <div class="text-7xl font-extrabold tracking-tight" id="score">0%</div>
+                <div id="secure-badge" class="px-3 py-1 text-[0.7rem] font-bold text-gray-400 border border-gray-600 rounded bg-gray-800/50">CHECKING</div>
+            </div>
+            
+            <!-- Dynamic Progress Bar -->
+            <div class="h-1.5 w-full bg-gray-800 mt-5 rounded-full overflow-hidden">
+                <div id="score-bar" class="h-full bg-blue-500 w-0 transition-all duration-1000 ease-out"></div>
+            </div>
+        </div>
+
+        <!-- Details List -->
+        <div class="flex flex-col border-t border-gray-800 bg-[#0d1117]/50">
+            
+            <!-- IP -->
+            <div class="p-4 px-6 divider flex items-center gap-5">
+                <i data-lucide="wifi" class="text-gray-400 w-5 h-5 flex-shrink-0"></i>
+                <div class="flex-1 text-left">
+                    <div class="label-text">IP ADDRESS</div>
+                    <div class="text-value font-mono tracking-tight" id="ip">...</div>
+                </div>
+            </div>
+            
+            <!-- ASN -->
+            <div class="p-4 px-6 divider flex items-center gap-5">
+                <i data-lucide="shield" class="text-gray-400 w-5 h-5 flex-shrink-0"></i>
+                <div class="flex-1 text-left">
+                    <div class="label-text">ASN</div>
+                    <div class="flex justify-between items-center w-full">
+                        <div class="text-value font-mono tracking-tight" id="asn">...</div>
+                        <button onclick="copyText('asn')" class="p-1.5 hover:bg-gray-800 rounded-md transition-colors text-gray-400 hover:text-white" title="Copy ASN">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CITY -->
+            <div class="p-4 px-6 divider flex items-center gap-5">
+                <i data-lucide="map-pin" class="text-gray-400 w-5 h-5 flex-shrink-0"></i>
+                <div class="flex-1 text-left">
+                    <div class="label-text">CITY</div>
+                    <div class="text-value" id="city">...</div>
+                </div>
+            </div>
+            
+            <!-- COUNTRY -->
+            <div class="p-4 px-6 divider flex items-center gap-5">
+                <i data-lucide="globe" class="text-gray-400 w-5 h-5 flex-shrink-0"></i>
+                <div class="flex-1 text-left">
+                    <div class="label-text">COUNTRY</div>
+                    <div class="text-value" id="country">...</div>
+                </div>
+            </div>
+            
+            <!-- REGION -->
+            <div class="p-4 px-6 divider flex items-center gap-5">
+                <i data-lucide="map" class="text-gray-400 w-5 h-5 flex-shrink-0"></i>
+                <div class="flex-1 text-left">
+                    <div class="label-text">REGION</div>
+                    <div class="text-value" id="region">...</div>
+                </div>
+            </div>
+            
+            <!-- OS -->
+            <div class="p-4 px-6 divider flex items-center gap-5">
+                <i data-lucide="monitor" class="text-gray-400 w-5 h-5 flex-shrink-0" id="os-icon"></i>
+                <div class="flex-1 text-left">
+                    <div class="label-text">OPERATING SYSTEM</div>
+                    <div class="text-value" id="os">...</div>
+                </div>
+            </div>
+            
+            <!-- ISP -->
+            <div class="p-4 px-6 divider flex items-center gap-5">
+                <i data-lucide="server" class="text-gray-400 w-5 h-5 flex-shrink-0"></i>
+                <div class="flex-1 text-left">
+                    <div class="label-text">ISP / PROVIDER</div>
+                    <div class="text-value" id="isp">...</div>
+                </div>
+            </div>
+            
+            <!-- TIMEZONE -->
+            <div class="p-4 px-6 divider flex items-center gap-5">
+                <i data-lucide="clock" class="text-gray-400 w-5 h-5 flex-shrink-0"></i>
+                <div class="flex-1 text-left">
+                    <div class="label-text">TIMEZONE</div>
+                    <div class="flex justify-between items-center w-full">
+                        <div class="text-value" id="timezone">...</div>
+                        <button onclick="copyText('timezone')" class="p-1.5 hover:bg-gray-800 rounded-md transition-colors text-gray-400 hover:text-white" title="Copy Timezone">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Synced status -->
+        <div class="p-4 px-6 flex justify-between items-center bg-[#111827] border-t border-gray-800 rounded-b-[1.25rem]">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-gray-500 shadow-[0_0_8px_rgba(34,197,94,0)] transition-all duration-500" id="sync-dot"></div>
+                <div class="text-[0.65rem] font-bold text-gray-400 tracking-[0.1em]" id="sync-text">WAITING</div>
+            </div>
+            <div class="text-[0.9rem] font-mono font-medium text-gray-300 tracking-wide" id="current-time">--:--:--</div>
+        </div>
+    </div>
+
+    <!-- Toast Component -->
+    <div id="toast">Copied to clipboard</div>
+
+    <script>
+        // Init Lucide Icons globally
+        lucide.createIcons();
+
+        // Object cache for easy copying
+        let globalData = {};
+
+        // Detect OS and assign accurate icon
+        const getOS = () => {
+            const userAgent = window.navigator.userAgent;
+            const platform = window.navigator.platform;
+            const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+            const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+            const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+            
+            let os = 'Unknown System';
+            if (macosPlatforms.indexOf(platform) !== -1) os = 'Mac OS';
+            else if (iosPlatforms.indexOf(platform) !== -1) os = 'iOS';
+            else if (windowsPlatforms.indexOf(platform) !== -1) os = 'Windows';
+            else if (/Android/.test(userAgent)) os = 'Android';
+            else if (/Linux/.test(platform)) os = 'Linux';
+            
+            return os;
+        };
+
+        const setupOS = () => {
+            const osName = getOS();
+            document.getElementById('os').innerText = osName;
+            
+            const osIcon = document.getElementById('os-icon');
+            if(osName === 'Android' || osName === 'iOS') {
+                osIcon.setAttribute('data-lucide', 'smartphone');
+            } else {
+                osIcon.setAttribute('data-lucide', 'monitor');
+            }
+            lucide.createIcons();
+        };
+
+        // Live clock running in the footer
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', {
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit'
+            });
+        }, 1000);
+
+        // Core data fetching logic (IPv4 & IPv6 supported)
+        async function fetchData() {
+            const btn = document.getElementById('reloadBtn');
+            const btnIcon = btn.querySelector('svg');
+            
+            // Activate Loading State
+            btnIcon.classList.add('animate-spin');
+            const syncDot = document.getElementById('sync-dot');
+            syncDot.className = 'w-2 h-2 rounded-full bg-gray-500 shadow-[0_0_8px_rgba(34,197,94,0)] transition-all duration-500';
+            document.getElementById('sync-text').innerText = 'CHECKING...';
+            document.getElementById('score').innerText = '0%';
+            document.getElementById('score-bar').style.width = '0%';
+            document.getElementById('score-bar').className = 'h-full bg-blue-500 transition-all duration-1000 ease-out';
+            
+            try {
+                let data = null;
+                const providers = [
+                    async () => {
+                        const r = await fetch('https://ipwho.is/');
+                        if (!r.ok) throw new Error('ipwho.is status ' + r.status);
+                        const j = await r.json();
+                        if (!j.success) throw new Error('ipwho.is not success');
+                        return { 
+                            ip: j.ip, 
+                            asn: 'AS' + j.connection.asn, 
+                            city: j.city, 
+                            country: j.country_code, 
+                            region: j.region, 
+                            isp: j.connection.isp, 
+                            timezone: j.timezone.id 
+                        };
+                    },
+                    async () => {
+                        const r = await fetch('https://ipapi.co/json/');
+                        if (!r.ok) throw new Error('ipapi.co status ' + r.status);
+                        const j = await r.json();
+                        if (j.error) throw new Error('ipapi.co error');
+                        return { 
+                            ip: j.ip, 
+                            asn: j.asn, 
+                            city: j.city, 
+                            country: j.country, 
+                            region: j.region, 
+                            isp: j.org, 
+                            timezone: j.timezone 
+                        };
+                    },
+                    async () => {
+                        const r = await fetch('https://get.geojs.io/v1/ip/geo.json');
+                        if (!r.ok) throw new Error('geojs status ' + r.status);
+                        const j = await r.json();
+                        return { 
+                            ip: j.ip, 
+                            asn: j.asn ? 'AS' + j.asn : 'Unknown', 
+                            city: j.city, 
+                            country: j.country_code, 
+                            region: j.region, 
+                            isp: j.organization_name, 
+                            timezone: j.timezone 
+                        };
+                    },
+                    async () => {
+                        const r = await fetch('https://ipinfo.io/json');
+                        if (!r.ok) throw new Error('ipinfo status ' + r.status);
+                        const j = await r.json();
+                        return { 
+                            ip: j.ip, 
+                            asn: j.org ? j.org.split(' ')[0] : 'Unknown', 
+                            city: j.city, 
+                            country: j.country, 
+                            region: j.region, 
+                            isp: j.org ? j.org.substring(j.org.indexOf(' ') + 1) : 'Unknown', 
+                            timezone: j.timezone 
+                        };
+                    }
+                ];
+
+                for (const provider of providers) {
+                    try {
+                        data = await provider();
+                        if (data && data.ip) break; // Found valid data
+                    } catch (e) {
+                        console.warn('Provider failed check:', e);
+                    }
+                }
+
+                if (!data || !data.ip) {
+                    throw new Error('All IP providers failed or were blocked');
+                }
+
+                globalData = data;
+
+                // Sync data into DOM
+                document.getElementById('ip').innerText = data.ip || 'Unknown';
+                document.getElementById('asn').innerText = data.asn || 'Unknown';
+                document.getElementById('city').innerText = data.city || 'Unknown';
+                document.getElementById('country').innerText = data.country || 'Unknown';
+                document.getElementById('region').innerText = data.region || 'Unknown';
+                document.getElementById('isp').innerText = data.isp || 'Unknown';
+                document.getElementById('timezone').innerText = data.timezone || 'Unknown';
+
+                // Check Timezone Anonymity & Apply Security Styles
+                checkAnonymity(data.timezone);
+
+            } catch (error) {
+                console.error("Failed to load IP details", error);
+                document.getElementById('ip').innerText = "Network Error";
+                document.getElementById('sync-text').innerText = "ERROR";
+            } finally {
+                btnIcon.classList.remove('animate-spin');
+            }
+        }
+
+        // Logic for comparing System Time vs IP Time
+        function checkAnonymity(ipTimezone) {
+            // Get local machine timezone directly from browser Intl API
+            const sysTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            const scoreEl = document.getElementById('score');
+            const badge = document.getElementById('secure-badge');
+            const bar = document.getElementById('score-bar');
+            
+            const syncDot = document.getElementById('sync-dot');
+            const syncText = document.getElementById('sync-text');
+
+            if (sysTimezone === ipTimezone) {
+                // 100% Secure logic
+                scoreEl.innerText = "100%";
+                scoreEl.style.color = "#ffffff";
+                
+                badge.innerText = "SECURE";
+                badge.className = "px-3 py-1 text-[0.7rem] font-bold text-[#10b981] border border-[#10b981] rounded bg-[#10b981]/10";
+                
+                bar.style.width = "100%";
+                bar.className = "h-full bg-[#3b82f6] transition-all duration-1000 ease-out";
+
+                syncDot.className = "w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.7)] transition-all duration-500";
+                syncText.innerText = "SYNCED";
+            } else {
+                // Timezone mismatch (Proxy/VPN detected)
+                scoreEl.innerText = "70%";
+                scoreEl.style.color = "#f59e0b";
+                
+                badge.innerText = "MISMATCH";
+                badge.className = "px-3 py-1 text-[0.7rem] font-bold text-[#f59e0b] border border-[#f59e0b] rounded bg-[#f59e0b]/10";
+                
+                bar.style.width = "70%";
+                bar.className = "h-full bg-[#f59e0b] transition-all duration-1000 ease-out";
+
+                syncDot.className = "w-2 h-2 rounded-full bg-[#f59e0b] transition-all duration-500";
+                syncText.innerText = "TZ MISMATCH";
+            }
+        }
+
+        // Function allowing click-to-copy
+        function copyText(id) {
+            const text = document.getElementById(id).innerText;
+            if(text && text !== '...' && text !== 'Unknown') {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast();
+                });
+            }
+        }
+
+        // Toast display handler
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2800);
+        }
+
+        // Kickoff logic on page load
+        setupOS();
+        fetchData();
+    </script>
+</body>
+</html>
