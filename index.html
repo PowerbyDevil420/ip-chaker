@@ -1,0 +1,1570 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, nocache, notranslate" />
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, nocache, notranslate" />
+    <meta name="googlebot-news" content="noindex, nofollow, noarchive, nosnippet" />
+    <meta name="google-extended" content="noindex, nofollow" />
+    <meta name="GPTBot" content="noindex, nofollow" />
+    <meta name="CCBot" content="noindex, nofollow" />
+    <meta name="anthropic-ai" content="noindex, nofollow" />
+    <meta name="OAI-SearchBot" content="noindex, nofollow" />
+    <title>Timezone & IP Checker - 100% Accurate</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="https://ipwho.is">
+    <link rel="dns-prefetch" href="https://tibnmcjnuzkibkoaluwl.supabase.co">
+
+    <!-- Tailwind CSS for styling without any build tools -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons (Minified for data saving) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <!-- Google Fonts -->
+    <style>
+      body {
+        background-color: #0b0f16;
+        color: #e5e7eb;
+        font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+      }
+
+      .card {
+        background-color: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 1.25rem;
+      }
+
+      .divider {
+        border-bottom: 1px solid #1f2937;
+      }
+
+      .divider:last-child {
+        border-bottom: none;
+      }
+
+      .text-value {
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: 1.05rem;
+      }
+
+      .label-text {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #9ca3af;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+      }
+
+      /* Custom Toast Notification */
+      #toast {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #1f2937;
+        color: #fff;
+        text-align: center;
+        border: 1px solid #374151;
+        border-radius: 8px;
+        padding: 12px;
+        position: fixed;
+        z-index: 50;
+        left: 50%;
+        bottom: 30px;
+        transform: translateX(-50%);
+        font-size: 14px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        font-weight: 500;
+      }
+
+      #toast.show {
+        visibility: visible;
+        animation:
+          fadein 0.3s,
+          fadeout 0.3s 2.5s;
+      }
+
+      @keyframes fadein {
+        from {
+          bottom: 0;
+          opacity: 0;
+        }
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+        to {
+          bottom: 0;
+          opacity: 0;
+        }
+      }
+
+      @keyframes type-pop {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.4);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes type-wave {
+        0% {
+          background-position: 200% auto;
+        }
+        100% {
+          background-position: -200% auto;
+        }
+      }
+
+      .golden-wave-text {
+        background-image: linear-gradient(
+          -45deg,
+          #d97706 0%,
+          #fbbf24 25%,
+          #fef08a 40%,
+          #ffffff 50%,
+          #fef08a 60%,
+          #fbbf24 75%,
+          #d97706 100%
+        );
+        background-size: 200% auto;
+        color: transparent;
+        -webkit-background-clip: text;
+        background-clip: text;
+        display: inline-block;
+        font-weight: 800;
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+      }
+
+      .animate-type-pop {
+        animation:
+          type-pop 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.28) forwards,
+          type-wave 2.5s linear infinite;
+      }
+    </style>
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  </head>
+  <body class="p-2 md:p-8 flex flex-col items-center min-h-screen pt-4 pb-8">
+    <!-- Cloudflare Turnstile Overlay -->
+    <div id="cf-overlay" class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center font-sans text-gray-800 transition-opacity duration-300">
+      <div class="max-w-md w-full p-6 bg-white border border-gray-200 rounded-lg shadow-sm mx-4 flex flex-col items-center">
+        <h1 class="text-2xl font-semibold mb-2 text-gray-900 leading-tight text-center">Checking if the site connection is secure</h1>
+        <p class="text-gray-600 mb-6 text-sm text-center">We need to review the security of your connection before proceeding.</p>
+        
+        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="cfCallback"></div>
+        
+        <div class="text-xs text-gray-400 text-center select-none pt-6 mt-4 w-full border-t border-gray-100">
+          Performance & security by Cloudflare
+        </div>
+      </div>
+    </div>
+    
+    <!-- Search Area (Outside Card) -->
+    <div class="w-full max-w-[440px] mb-10 flex gap-2">
+      <form
+        id="searchForm"
+        onsubmit="
+          event.preventDefault();
+          searchIP();
+        "
+        class="relative flex-grow"
+      >
+        <input
+          type="text"
+          id="ipSearchInput"
+          placeholder="Enter IP address to check..."
+          class="w-full bg-[#111827] border border-gray-700 text-sm text-gray-300 rounded-[1rem] px-4 py-3 shadow-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-600"
+        />
+        <button
+          type="submit"
+          class="absolute right-2 top-2 p-1.5 text-gray-500 hover:text-blue-500 transition-colors"
+        >
+          <i data-lucide="search" class="w-4 h-4"></i>
+        </button>
+      </form>
+      <button
+        onclick="fetchData()"
+        id="reloadBtn"
+        class="flex flex-shrink-0 items-center justify-center gap-1.5 bg-orange-600 hover:bg-orange-500 border border-orange-500 text-white rounded-[1rem] px-5 shadow-lg transition-colors focus:outline-none group font-semibold text-sm"
+      >
+        <i
+          data-lucide="refresh-cw"
+          class="w-4 h-4 group-active:scale-95 transition-transform"
+        ></i>
+        Refresh
+      </button>
+    </div>
+
+    <!-- Main Card Container -->
+    <div class="relative w-full max-w-[440px]">
+      <!-- Ribbon Badge -->
+      <div id="usage-ribbon-container" class="absolute -top-1 -right-3.5 z-30 filter drop-shadow-xl select-none opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+          id="usage-status"
+          class="bg-gray-600 text-white font-bold py-1.5 tracking-wider text-[0.75rem] transition-colors duration-300 shadow-sm"
+          style="clip-path: polygon(0 0, 100% 0, 100% 100%, 15px 100%); padding-left: 24px; padding-right: 12px;"
+        >
+          CHECKING...
+        </div>
+        <div 
+          id="usage-fold" 
+          class="absolute top-full right-0 w-3.5 h-3 bg-gray-800 transition-colors duration-300" 
+          style="clip-path: polygon(0 0, 100% 0, 0 100%);"
+        ></div>
+      </div>
+      
+      <div
+        class="card w-full flex flex-col shadow-2xl overflow-hidden"
+      >
+        <!-- Header / Score Area -->
+        <div class="px-5 pt-3 pb-2 relative">
+          <div class="flex items-end justify-between">
+            <div
+              class="text-[2.75rem] font-extrabold tracking-tight leading-[0.9] flex items-baseline"
+              id="score"
+            >
+              0<span class="text-[2rem] font-bold opacity-70 ml-1">%</span>
+            </div>
+            
+            <div id="top-country-display" class="flex flex-row items-center gap-1.5 opacity-0 transition-opacity duration-500 mb-0.5">
+               <span id="country-flag" class="text-[1.2rem] leading-none filter drop-shadow">🏳️</span>
+               <div class="flex items-baseline gap-1">
+                 <span id="country-name" class="text-[0.9rem] font-bold tracking-tight text-gray-300 hover:text-white transition-colors cursor-pointer truncate max-w-[150px]" onclick="toggleCountry()" title="Toggle short/full name">...</span>
+               </div>
+               <button onclick="openCountryModal()" class="ml-0.5 p-1 hover:bg-gray-700/50 rounded transition-colors text-gray-500 hover:text-white flex items-center justify-center focus:outline-none" title="View all countries (A-Z)">
+                   <i data-lucide="chevron-down" class="w-4 h-4"></i>
+               </button>
+            </div>
+          </div>
+  
+          <!-- Dynamic Progress Bar -->
+          <div class="relative mt-3 mb-1">
+            <div class="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+              <div
+                id="score-bar"
+                class="h-full bg-blue-500 w-0 transition-all duration-1000 ease-out"
+              ></div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Details List -->
+        <div
+          id="details-list"
+          class="flex flex-col border-t border-gray-800 bg-[#0d1117]/50 text-sm"
+        ></div>
+  
+        <!-- Footer Synced status -->
+        <div
+          class="p-3 px-5 flex justify-between items-center bg-[#111827] border-t border-gray-800 rounded-b-[1.25rem]"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="w-1.5 h-1.5 rounded-full bg-gray-500 shadow-[0_0_8px_rgba(34,197,94,0)] transition-all duration-500"
+              id="sync-dot"
+            ></div>
+            <div
+              class="text-[0.6rem] font-bold text-gray-400 tracking-[0.1em]"
+              id="sync-text"
+            >
+              WAITING
+            </div>
+          </div>
+          <div
+            class="text-[0.8rem] font-mono font-medium text-gray-300 tracking-wide"
+            id="current-time"
+          >
+            --:--:--
+          </div>
+        </div>
+      </div>
+
+      <!-- Digital Persona Card -->
+      <div class="mt-4 bg-[#111827] border border-gray-800 rounded-[1.25rem] shadow-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group min-h-[90px]">
+         <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+         
+         <!-- Setup State -->
+         <div id="persona-setup" class="hidden flex-col items-center w-full z-10 gap-2">
+            <div class="text-[0.65rem] font-bold text-gray-400 tracking-[0.25em] uppercase mb-1">Set Up Persona</div>
+            <div class="flex gap-2 w-full justify-center">
+              <select id="persona-gender" class="bg-gray-900 border border-gray-700 text-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 outline-none cursor-pointer">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+              <input type="number" id="persona-age" placeholder="Age" min="10" max="100" class="w-16 bg-gray-900 border border-gray-700 text-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 outline-none">
+            </div>
+            <button onclick="savePersonaPrefs()" class="px-3 py-1 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white border border-blue-500/30 text-xs font-bold rounded-lg transition-colors mt-1">Generate</button>
+         </div>
+
+         <!-- Display State -->
+         <div id="persona-display" class="hidden flex-col items-center w-full z-10">
+           <button onclick="showPersonaSetup()" class="absolute left-3 top-3 text-gray-500 hover:text-purple-400 transition-colors z-20" title="Settings">
+             <i data-lucide="settings" class="w-4 h-4"></i>
+           </button>
+           <div class="flex items-center gap-2">
+             <div id="digital-persona" class="text-[1.35rem] leading-tight md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 text-center tracking-tight filter drop-shadow">
+               Loading...
+             </div>
+             <button onclick="copyText('digital-persona')" class="text-gray-500 hover:text-green-400 transition-colors mt-0.5 outline-none z-20" title="Copy Name">
+               <i data-lucide="copy" class="w-4 h-4"></i>
+             </button>
+           </div>
+           
+           <div class="flex gap-3 mt-2 text-gray-500">
+             <button onclick="generateNewPersona()" class="px-3 py-1 bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700/50 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 shadow-sm" title="Change Name">
+               <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Change Name
+             </button>
+           </div>
+         </div>
+      </div>
+    </div>
+
+    <!-- Toast Component -->
+    <div id="toast">Copied to clipboard</div>
+
+    <!-- Country Modal -->
+    <div
+      id="country-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 opacity-0 pointer-events-none transition-opacity duration-300 backdrop-blur-sm"
+    >
+      <div
+        class="bg-[#111827] border border-gray-800 rounded-2xl w-full max-w-[380px] max-h-[85vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300"
+        id="country-modal-inner"
+      >
+        <div
+          class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#0d1117] rounded-t-2xl"
+        >
+          <h3 class="text-white font-bold text-sm tracking-wide">
+            ALL COUNTRIES & TERRITORIES
+          </h3>
+          <button
+            onclick="closeCountryModal()"
+            class="text-gray-500 hover:text-white transition-colors focus:outline-none p-1 rounded-md hover:bg-gray-800"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="p-2 border-b border-gray-800 bg-[#0d1117]">
+          <input
+            type="text"
+            id="country-search"
+            oninput="filterCountries()"
+            placeholder="Search countries..."
+            class="w-full bg-[#1f2937] text-white text-sm px-3 py-2 border border-gray-700/50 rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-500"
+          />
+        </div>
+        <div
+          id="country-list"
+          class="overflow-y-auto flex-1 p-2 space-y-1"
+          style="scrollbar-width: thin; scrollbar-color: #374151 transparent"
+        >
+          <!-- populates here -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Cloudflare check functions
+      function cfCallback(token) {
+        if (token) {
+          sessionStorage.setItem('cf_verified', 'true');
+          const overlay = document.getElementById('cf-overlay');
+          overlay.style.opacity = '0';
+          document.body.style.overflow = 'auto';
+          setTimeout(() => {
+             overlay.style.display = 'none';
+          }, 300);
+        }
+      }
+
+      function initCloudflareCheck() {
+        const overlay = document.getElementById('cf-overlay');
+        if (sessionStorage.getItem('cf_verified')) {
+          overlay.style.display = 'none';
+          document.body.style.overflow = 'auto';
+        } else {
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      // Init Lucide Icons globally
+      lucide.createIcons();
+
+      // Object cache for easy copying
+      let globalData = {};
+
+      // Supabase configuration
+      const SUPABASE_URL = "https://tibnmcjnuzkibkoaluwl.supabase.co/rest/v1/";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpYm5tY2pudXpraWJrb2FsdXdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MDMyNzIsImV4cCI6MjA5MzI3OTI3Mn0.eRNIedq5wO3LcHnvCW7fFrqkVj07MxZ5oW-cERkmFXM";
+      const SUPABASE_TABLE = "ips"; // Assumed table name for checking Usage
+
+      // Detect OS and assign accurate icon
+      const getOS = () => {
+        const p = navigator.platform,
+          u = navigator.userAgent;
+        if (/Mac/.test(p)) return "Mac OS";
+        if (/Win/.test(p)) return "Windows";
+        if (/iPhone|iPad|iPod/.test(p)) return "iOS";
+        if (/Android/.test(u)) return "Android";
+        if (/Linux/.test(p)) return "Linux";
+        return "Unknown System";
+      };
+
+      const setupOS = () => {
+        const osName = getOS();
+        document.getElementById("os").innerText = osName;
+
+        const osIcon = document.getElementById("os-icon");
+        if (osName === "Android" || osName === "iOS") {
+          osIcon.setAttribute("data-lucide", "smartphone");
+        } else {
+          osIcon.setAttribute("data-lucide", "monitor");
+        }
+        lucide.createIcons();
+      };
+
+      // Live clock running in the footer
+      setInterval(() => {
+        const now = new Date();
+        let options = {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        };
+        if (
+          globalData &&
+          globalData.timezone &&
+          globalData.timezone !== "Unknown"
+        ) {
+          try {
+            options.timeZone = globalData.timezone;
+          } catch (e) {}
+        }
+        document.getElementById("current-time").innerText =
+          now.toLocaleTimeString("en-US", options);
+      }, 1000);
+
+      function searchIP() {
+        const val = document.getElementById("ipSearchInput").value.trim();
+        fetchData(val);
+      }
+
+      function updateUsageUI(text, mainColor, foldColor, show = true) {
+        const container = document.getElementById("usage-ribbon-container");
+        const usageEl = document.getElementById("usage-status");
+        const foldEl = document.getElementById("usage-fold");
+
+        if (container) {
+          if (show) {
+            container.classList.remove("opacity-0", "pointer-events-none");
+          } else {
+            container.classList.add("opacity-0", "pointer-events-none");
+          }
+        }
+
+        if (usageEl && text) {
+          usageEl.innerText = text;
+          if (mainColor) usageEl.style.backgroundColor = mainColor;
+          usageEl.style.color = "#ffffff";
+        }
+        if (foldEl && foldColor) {
+          foldEl.style.backgroundColor = foldColor;
+        }
+      }
+
+      async function checkSupabaseUsedStatus(ip) {
+        updateUsageUI(null, null, null, false);
+        let isUsed = false;
+
+        try {
+          // Check if IP exists
+          const res = await fetch(
+            `${SUPABASE_URL}${SUPABASE_TABLE}?ip=eq.${ip}&select=created_at&limit=1`,
+            {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+              },
+            },
+          );
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.length > 0) {
+              // IP has been used
+              let dateStr = "PREVIOUSLY USED";
+              if (data[0].created_at) {
+                const parsed = new Date(data[0].created_at);
+                if (!isNaN(parsed)) {
+                  const diffS = Math.floor((new Date() - parsed) / 1000);
+                  if (diffS < 60)
+                    dateStr =
+                      diffS <= 10 ? "USED JUST NOW" : `USED ${diffS}S AGO`;
+                  else if (diffS < 3600)
+                    dateStr = `USED ${Math.floor(diffS / 60)}M AGO`;
+                  else if (diffS < 86400)
+                    dateStr = `USED ${Math.floor(diffS / 3600)}H AGO`;
+                  else dateStr = `USED ${Math.floor(diffS / 86400)}D AGO`;
+                }
+              }
+              updateUsageUI(dateStr, "#ef4444", "#991b1b"); // red-500, red-800
+              isUsed = true;
+            } else {
+              // IP is fresh/unused
+              updateUsageUI("UNUSED", "#10b981", "#047857"); // emerald-500, emerald-700
+
+              // Insert as used now
+              fetch(`${SUPABASE_URL}${SUPABASE_TABLE}`, {
+                method: "POST",
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                  "Content-Type": "application/json",
+                  Prefer: "return=minimal, resolution=ignore-duplicates",
+                },
+                body: JSON.stringify({ ip: ip }),
+              }).catch((e) =>
+                console.log("Insert failed (maybe table missing)", e),
+              );
+            }
+          } else {
+            updateUsageUI("UNUSED", "#10b981", "#047857");
+          }
+        } catch (e) {
+          console.error("Supabase error", e);
+          updateUsageUI("UNUSED", "#10b981", "#047857");
+        }
+        return isUsed;
+      }
+
+      // Core data fetching logic (IPv4 & IPv6 supported)
+      window.currentIpData = null;
+      window.personaGenderPref = localStorage.getItem('personaGenderPref') || null;
+      window.personaAgePref = localStorage.getItem('personaAgePref') || null;
+
+      async function fetchData(targetIp = "") {
+        const btn = document.getElementById("reloadBtn");
+        const btnIcon = btn ? btn.querySelector("svg, i") : null;
+
+        // Activate Loading State
+        if (btnIcon) btnIcon.classList.add("animate-spin");
+        const syncDot = document.getElementById("sync-dot");
+        syncDot.className =
+          "w-1.5 h-1.5 rounded-full bg-gray-500 shadow-[0_0_8px_rgba(34,197,94,0)] transition-all duration-500";
+        document.getElementById("sync-text").innerText = "CHECKING...";
+
+        const scoreEl = document.getElementById("score");
+        scoreEl.innerHTML = `0<span class="text-[2rem] font-bold opacity-70 ml-1">%</span>`;
+        scoreEl.style.color = "#6b7280";
+
+        const scoreBar = document.getElementById("score-bar");
+        scoreBar.style.width = "0%";
+        scoreBar.style.backgroundColor = "#6b7280";
+
+        updateUsageUI(null, null, null, false);
+
+        const personaEl = document.getElementById("digital-persona");
+        const factorsEl = document.getElementById("persona-factors");
+        if (personaEl) {
+           personaEl.classList.add("opacity-0", "translate-y-2");
+           personaEl.innerText = "Loading Identity...";
+        }
+        if (factorsEl) factorsEl.classList.add("opacity-0");
+
+        const fields = [
+          "ip",
+          "ip_type",
+          "asn",
+          "city",
+          "region",
+          "os",
+          "isp",
+          "timezone",
+        ];
+        fields.forEach((f) => {
+          const el = document.getElementById(f);
+          if (el) el.innerText = "Loading...";
+        });
+        
+        const topCountryDisplay = document.getElementById("top-country-display");
+        if (topCountryDisplay) topCountryDisplay.classList.add("opacity-0");
+
+        let queryUrlAdd = targetIp ? `/${targetIp}` : "";
+        if (queryUrlAdd.startsWith("//"))
+          queryUrlAdd = queryUrlAdd.substring(1);
+
+        const guessIPType = (isp, security) => {
+          if (security?.vpn || security?.proxy || security?.tor)
+            return "VPN/Proxy";
+          if (security?.hosting) return "Datacenter";
+
+          const lower = (isp || "").toLowerCase();
+          const dct = [
+            "cloud",
+            "host",
+            "datacenter",
+            "aws",
+            "amazon",
+            "google",
+            "digitalocean",
+            "azure",
+            "linode",
+            "ovh",
+            "hetzner",
+            "alibaba",
+            "tencent",
+          ];
+          const mob = [
+            "mobile",
+            "cell",
+            "wireless",
+            "vodafone",
+            "t-mobile",
+            "o2",
+            "orange",
+            "airtel",
+            "jio",
+            "banglalink",
+            "grameenphone",
+            "robi",
+            "teletalk",
+            "at&t",
+            "verizon",
+          ];
+
+          for (let k of dct) if (lower.includes(k)) return "Datacenter";
+          for (let k of mob) if (lower.includes(k)) return "Mobile";
+          if (
+            lower.includes("edu") ||
+            lower.includes("university") ||
+            lower.includes("college")
+          )
+            return "Education";
+
+          return "Residential";
+        };
+
+        try {
+          let data = null;
+          const providers = [
+            async () =>
+              fetch(`https://ipwho.is${queryUrlAdd}`)
+                .then((r) => r.json())
+                .then((j) => {
+                  if (!j.success) throw new Error();
+                  const isp = j.connection?.isp || j.connection?.org;
+                  return {
+                    ip: j.ip,
+                    asn: String(j.connection?.asn || "Unknown").replace(
+                      /^AS/i,
+                      "",
+                    ),
+                    city: j.city,
+                    countryFull: j.country,
+                    countryShort: j.country_code,
+                    region: j.region,
+                    isp: isp || "Unknown",
+                    timezone: j.timezone?.id,
+                    proxy: j.security?.proxy || false,
+                    vpn: j.security?.vpn || false,
+                    tor: j.security?.tor || false,
+                    hosting: j.security?.hosting || false,
+                    ip_type: guessIPType(isp, j.security),
+                  };
+                }),
+            async () =>
+              fetch(
+                `https://ipapi.co/${targetIp || ""}/json/`.replace("//j", "/j"),
+              )
+                .then((r) => r.json())
+                .then((j) => {
+                  if (j.error) throw new Error();
+                  return {
+                    ip: j.ip,
+                    asn: String(j.asn || "Unknown").replace(/^AS/i, ""),
+                    city: j.city,
+                    countryFull: j.country_name || j.country,
+                    countryShort: j.country_code || j.country,
+                    region: j.region,
+                    isp: j.org || "Unknown",
+                    timezone: j.timezone,
+                    proxy: false,
+                    vpn: false,
+                    tor: false,
+                    ip_type: guessIPType(j.org, null),
+                  };
+                }),
+            async () =>
+              fetch(
+                `https://get.geojs.io/v1/ip/geo${targetIp ? `/${targetIp}` : ""}.json`,
+              )
+                .then((r) => r.json())
+                .then((j) => {
+                  return {
+                    ip: j.ip,
+                    asn: String(j.asn || "Unknown").replace(/^AS/i, ""),
+                    city: j.city,
+                    countryFull: j.country,
+                    countryShort: j.country_code,
+                    region: j.region,
+                    isp: j.organization_name || "Unknown",
+                    timezone: j.timezone,
+                    proxy: false,
+                    vpn: false,
+                    tor: false,
+                    ip_type: guessIPType(j.organization_name, null),
+                  };
+                }),
+          ];
+
+          for (const provider of providers) {
+            try {
+              data = await provider();
+              if (data && data.ip) break; // Found valid data
+            } catch (e) {
+              console.warn("Provider failed check:", e);
+            }
+          }
+
+          if (!data || !data.ip) {
+            throw new Error("All IP providers failed or were blocked");
+          }
+
+          globalData = data;
+
+          // Sync data into DOM
+          const isIPv6 = (data.ip || "").includes(":");
+          const ipVersion = isIPv6 ? "IPv6" : "IPv4";
+
+          const ipRow = document.getElementById("row-ip");
+          const ipLabel = document.getElementById("label-ip");
+          const ipEl = document.getElementById("ip");
+          const ipValContainer = document.getElementById("val-container-ip");
+
+          ipLabel.innerHTML = `IP ADDRESS <span class="bg-gray-700/80 border border-gray-600/80 px-1.5 py-0.5 rounded text-[0.75rem] font-sans font-bold uppercase tracking-widest text-gray-200 ml-2 align-middle shadow-sm leading-none inline-block">${ipVersion}</span>`;
+
+          if (isIPv6) {
+            ipRow.className =
+              "py-2 px-4 divider flex flex-col items-start justify-center gap-2 hover:bg-white/[0.02] transition-colors";
+            ipValContainer.className =
+              "w-full flex items-center justify-between gap-3 min-w-0";
+            ipEl.className =
+              "text-value text-[11px] sm:text-[13px] text-left whitespace-nowrap font-mono tracking-tighter m-0 p-0 flex-1 overflow-visible";
+            ipEl.innerHTML = data.ip || "Unknown";
+          } else {
+            ipRow.className =
+              "py-2.5 px-4 divider flex items-start justify-between gap-3 hover:bg-white/[0.02] transition-colors";
+            ipValContainer.className =
+              "flex items-start justify-end gap-2 w-full pt-0.5 min-w-0";
+            ipEl.className =
+              "text-value text-[0.95rem] leading-tight text-right font-mono tracking-tight break-words";
+            ipEl.innerHTML = data.ip || "Unknown";
+          }
+
+          let typeIcon = "tag";
+          switch (data.ip_type) {
+            case "Mobile":
+              typeIcon = "smartphone";
+              break;
+            case "Datacenter":
+              typeIcon = "server";
+              break;
+            case "Business":
+              typeIcon = "briefcase";
+              break;
+            case "Education":
+              typeIcon = "graduation-cap";
+              break;
+            case "VPN/Proxy":
+              typeIcon = "shield-alert";
+              break;
+            case "Residential":
+              typeIcon = "home";
+              break;
+          }
+          const ipTypeEl = document.getElementById("ip_type");
+          ipTypeEl.innerHTML = `<span class="flex items-center justify-end gap-2"><span class="golden-wave-text animate-type-pop">${data.ip_type || "Unknown"}</span> <i data-lucide="${typeIcon}" class="w-4 h-4 text-blue-400 flex-shrink-0"></i></span>`;
+
+          document.getElementById("asn").innerText = data.asn || "Unknown";
+          document.getElementById("city").innerText = data.city || "Unknown";
+
+          const cFull = data.countryFull || "Unknown";
+          const cShort = data.countryShort || "Unknown";
+
+          const countryMap = {
+            Afghanistan: "AF",
+            "Åland Islands": "AX",
+            Albania: "AL",
+            Algeria: "DZ",
+            "American Samoa": "AS",
+            Andorra: "AD",
+            Angola: "AO",
+            Anguilla: "AI",
+            Antarctica: "AQ",
+            "Antigua and Barbuda": "AG",
+            Argentina: "AR",
+            Armenia: "AM",
+            Aruba: "AW",
+            Australia: "AU",
+            Austria: "AT",
+            Azerbaijan: "AZ",
+            Bahamas: "BS",
+            Bahrain: "BH",
+            Bangladesh: "BD",
+            Barbados: "BB",
+            Belarus: "BY",
+            Belgium: "BE",
+            Belize: "BZ",
+            Benin: "BJ",
+            Bermuda: "BM",
+            Bhutan: "BT",
+            Bolivia: "BO",
+            "Bonaire, Sint Eustatius and Saba": "BQ",
+            "Bosnia and Herzegovina": "BA",
+            Botswana: "BW",
+            "Bouvet Island": "BV",
+            Brazil: "BR",
+            "British Indian Ocean Territory": "IO",
+            "Brunei Darussalam": "BN",
+            Bulgaria: "BG",
+            "Burkina Faso": "BF",
+            Burundi: "BI",
+            "Cabo Verde": "CV",
+            Cambodia: "KH",
+            Cameroon: "CM",
+            Canada: "CA",
+            "Cayman Islands": "KY",
+            "Central African Republic": "CF",
+            Chad: "TD",
+            Chile: "CL",
+            China: "CN",
+            "Christmas Island": "CX",
+            "Cocos (Keeling) Islands": "CC",
+            Colombia: "CO",
+            Comoros: "KM",
+            Congo: "CG",
+            "Congo (Democratic Republic of the)": "CD",
+            "Cook Islands": "CK",
+            "Costa Rica": "CR",
+            "Côte d'Ivoire": "CI",
+            Croatia: "HR",
+            Cuba: "CU",
+            Curaçao: "CW",
+            Cyprus: "CY",
+            Czechia: "CZ",
+            Denmark: "DK",
+            Djibouti: "DJ",
+            Dominica: "DM",
+            "Dominican Republic": "DO",
+            Ecuador: "EC",
+            Egypt: "EG",
+            "El Salvador": "SV",
+            "Equatorial Guinea": "GQ",
+            Eritrea: "ER",
+            Estonia: "EE",
+            Eswatini: "SZ",
+            Ethiopia: "ET",
+            "Falkland Islands": "FK",
+            "Faroe Islands": "FO",
+            Fiji: "FJ",
+            Finland: "FI",
+            France: "FR",
+            "French Guiana": "GF",
+            "French Polynesia": "PF",
+            "French Southern Territories": "TF",
+            Gabon: "GA",
+            Gambia: "GM",
+            Georgia: "GE",
+            Germany: "DE",
+            Ghana: "GH",
+            Gibraltar: "GI",
+            Greece: "GR",
+            Greenland: "GL",
+            Grenada: "GD",
+            Guadeloupe: "GP",
+            Guam: "GU",
+            Guatemala: "GT",
+            Guernsey: "GG",
+            Guinea: "GN",
+            "Guinea-Bissau": "GW",
+            Guyana: "GY",
+            Haiti: "HT",
+            "Heard Island and McDonald Islands": "HM",
+            "Holy See": "VA",
+            Honduras: "HN",
+            "Hong Kong": "HK",
+            Hungary: "HU",
+            Iceland: "IS",
+            India: "IN",
+            Indonesia: "ID",
+            Iran: "IR",
+            Iraq: "IQ",
+            Ireland: "IE",
+            "Isle of Man": "IM",
+            Israel: "IL",
+            Italy: "IT",
+            Jamaica: "JM",
+            Japan: "JP",
+            Jersey: "JE",
+            Jordan: "JO",
+            Kazakhstan: "KZ",
+            Kenya: "KE",
+            Kiribati: "KI",
+            "Korea (North)": "KP",
+            "Korea (South)": "KR",
+            Kosovo: "XK",
+            Kuwait: "KW",
+            Kyrgyzstan: "KG",
+            "Lao People's Democratic Republic": "LA",
+            Latvia: "LV",
+            Lebanon: "LB",
+            Lesotho: "LS",
+            Liberia: "LR",
+            Libya: "LY",
+            Liechtenstein: "LI",
+            Lithuania: "LT",
+            Luxembourg: "LU",
+            Macao: "MO",
+            Madagascar: "MG",
+            Malawi: "MW",
+            Malaysia: "MY",
+            Maldives: "MV",
+            Mali: "ML",
+            Malta: "MT",
+            "Marshall Islands": "MH",
+            Martinique: "MQ",
+            Mauritania: "MR",
+            Mauritius: "MU",
+            Mayotte: "YT",
+            Mexico: "MX",
+            Micronesia: "FM",
+            Moldova: "MD",
+            Monaco: "MC",
+            Mongolia: "MN",
+            Montenegro: "ME",
+            Montserrat: "MS",
+            Morocco: "MA",
+            Mozambique: "MZ",
+            Myanmar: "MM",
+            Namibia: "NA",
+            Nauru: "NR",
+            Nepal: "NP",
+            Netherlands: "NL",
+            "New Caledonia": "NC",
+            "New Zealand": "NZ",
+            Nicaragua: "NI",
+            Niger: "NE",
+            Nigeria: "NG",
+            Niue: "NU",
+            "Norfolk Island": "NF",
+            "North Macedonia": "MK",
+            "Northern Mariana Islands": "MP",
+            Norway: "NO",
+            Oman: "OM",
+            Pakistan: "PK",
+            Palau: "PW",
+            "Palestine, State of": "PS",
+            Panama: "PA",
+            "Papua New Guinea": "PG",
+            Paraguay: "PY",
+            Peru: "PE",
+            Philippines: "PH",
+            Pitcairn: "PN",
+            Poland: "PL",
+            Portugal: "PT",
+            "Puerto Rico": "PR",
+            Qatar: "QA",
+            Réunion: "RE",
+            Romania: "RO",
+            "Russian Federation": "RU",
+            Rwanda: "RW",
+            "Saint Barthélemy": "BL",
+            "Saint Helena, Ascension and Tristan da Cunha": "SH",
+            "Saint Kitts and Nevis": "KN",
+            "Saint Lucia": "LC",
+            "Saint Martin (French part)": "MF",
+            "Saint Pierre and Miquelon": "PM",
+            "Saint Vincent and the Grenadines": "VC",
+            Samoa: "WS",
+            "San Marino": "SM",
+            "Sao Tome and Principe": "ST",
+            "Saudi Arabia": "SA",
+            Senegal: "SN",
+            Serbia: "RS",
+            Seychelles: "SC",
+            "Sierra Leone": "SL",
+            Singapore: "SG",
+            "Sint Maarten (Dutch part)": "SX",
+            Slovakia: "SK",
+            Slovenia: "SI",
+            "Solomon Islands": "SB",
+            Somalia: "SO",
+            "South Africa": "ZA",
+            "South Georgia and the South Sandwich Islands": "GS",
+            "South Sudan": "SS",
+            Spain: "ES",
+            "Sri Lanka": "LK",
+            Sudan: "SD",
+            Suriname: "SR",
+            "Svalbard and Jan Mayen": "SJ",
+            Sweden: "SE",
+            Switzerland: "CH",
+            "Syrian Arab Republic": "SY",
+            Taiwan: "TW",
+            Tajikistan: "TJ",
+            Tanzania: "TZ",
+            Thailand: "TH",
+            "Timor-Leste": "TL",
+            Togo: "TG",
+            Tokelau: "TK",
+            Tonga: "TO",
+            "Trinidad and Tobago": "TT",
+            Tunisia: "TN",
+            Turkey: "TR",
+            Turkmenistan: "TM",
+            "Turks and Caicos Islands": "TC",
+            Tuvalu: "TV",
+            Uganda: "UG",
+            Ukraine: "UA",
+            "United Arab Emirates": "AE",
+            "United Kingdom": "GB",
+            "United States Minor Outlying Islands": "UM",
+            "United States of America": "US",
+            Uruguay: "UY",
+            Uzbekistan: "UZ",
+            Vanuatu: "VU",
+            Venezuela: "VE",
+            "Viet Nam": "VN",
+            "Virgin Islands (British)": "VG",
+            "Virgin Islands (U.S.)": "VI",
+            "Wallis and Futuna": "WF",
+            "Western Sahara": "EH",
+            Yemen: "YE",
+            Zambia: "ZM",
+            Zimbabwe: "ZW",
+          };
+
+          // Save to window so modal can access it
+          window.countryMap = countryMap;
+
+          const topCountryDisplay = document.getElementById("top-country-display");
+          const countryNameEl = document.getElementById("country-name");
+          const countryFlagEl = document.getElementById("country-flag");
+
+          if (topCountryDisplay && countryNameEl && countryFlagEl) {
+              countryNameEl.innerText = cFull;
+              countryNameEl.setAttribute("data-short", cShort);
+              countryNameEl.setAttribute("data-full", cFull);
+              countryFlagEl.innerHTML = getFlagEmojiLocal(cShort);
+              topCountryDisplay.classList.remove("opacity-0");
+          }
+
+          document.getElementById("region").innerText =
+            data.region || "Unknown";
+          document.getElementById("isp").innerText = data.isp || "Unknown";
+          document.getElementById("timezone").innerText =
+            data.timezone || "Unknown";
+
+          setupOS(); // Reset OS flag from browser agent
+          lucide.createIcons();
+          const isUsed = await checkSupabaseUsedStatus(data.ip);
+
+          // 2. Calculate Anonymity Score
+          calculateScore(data, isUsed);
+          
+          // 3. Generate Digital Persona
+          window.currentIpData = data;
+          initPersonaUI();
+        } catch (error) {
+          console.error("Failed to load IP details", error);
+          const errFields = [
+            "ip",
+            "ip_type",
+            "asn",
+            "city",
+            "region",
+            "os",
+            "isp",
+            "timezone",
+          ];
+          errFields.forEach((f) => {
+            const el = document.getElementById(f);
+            if (el) el.innerText = "Error";
+          });
+          document.getElementById("sync-text").innerText = "ERROR";
+        } finally {
+          if (btnIcon) btnIcon.classList.remove("animate-spin");
+        }
+      }
+
+      function calculateScore(ipData, isUsed) {
+        // Get local machine timezone directly from browser Intl API
+        const sysTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const ipTimezone = ipData.timezone;
+
+        let score = 100;
+        let colorHex = "#10b981"; // Emerald green
+
+        // Deductions
+        if (sysTimezone !== ipTimezone) {
+          score -= 20; // 20% penalty for timezone mismatch
+        }
+
+        if (isUsed) {
+          score -= 10; // 10% penalty if IP was used before
+        }
+
+        if (ipData.proxy || ipData.tor || ipData.vpn || ipData.hosting) {
+          score -= 40; // 40% penalty for suspected proxy/vpn/hosting
+        }
+
+        // Adjust texts and colors based on score
+        if (score === 100) {
+          colorHex = "#10b981"; // Green
+        } else if (score >= 70) {
+          colorHex = "#f59e0b"; // Orange/Yellow
+        } else {
+          colorHex = "#ef4444"; // Red for highly suspicious
+        }
+
+        const scoreEl = document.getElementById("score");
+        const bar = document.getElementById("score-bar");
+
+        const syncDot = document.getElementById("sync-dot");
+        const syncText = document.getElementById("sync-text");
+
+        // Apply to DOM
+        scoreEl.innerHTML = `${score}<span class="text-[2rem] font-bold opacity-70 ml-1">%</span>`;
+        scoreEl.style.color = colorHex;
+
+        bar.style.width = score + "%";
+        bar.style.backgroundColor = colorHex;
+
+        syncDot.style.backgroundColor = colorHex;
+        syncDot.style.boxShadow =
+          score >= 90 ? `0 0 8px ${colorHex}b3` : "none";
+        syncText.innerText = score >= 90 ? "SYNCED" : "FLAGGED";
+      }
+
+      function seededRandom(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        hash = Math.abs(hash);
+        return function() {
+          let t = hash += 0x6d2b79f5;
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function getRegionInfo(cc) {
+        const regions = {
+          Bangladesh: ["BD"],
+          India: ["IN"],
+          Pakistan: ["PK"],
+          SouthAsia: ["LK", "NP", "MV", "BT"],
+          EastAsia: ["CN", "JP", "KR", "TW", "KP", "HK", "MO", "MN"],
+          MiddleEast: ["AE", "SA", "QA", "BH", "KW", "OM", "EG", "IR", "IQ", "SY", "LB", "TR", "JO", "YE", "AF"],
+          Europe: ["GB", "FR", "DE", "IT", "ES", "NL", "BE", "SE", "NO", "FI", "DK", "CH", "AT", "GR", "PT", "PL", "UA", "RU", "IE", "CZ", "RO", "HU", "SK", "BG", "HR", "RS"],
+          Colombia: ["CO"],
+          LatinAmerica: ["BR", "AR", "MX", "CL", "PE", "VE", "EC", "GT", "CU", "BO", "DO", "HN", "PY", "SV", "NI", "CR", "PA", "UY"],
+          Africa: ["NG", "ET", "ZA", "KE", "UG", "DZ", "SD", "MA", "AO", "MZ", "GH", "MG", "CM", "CI", "NE", "BF", "ML", "MW", "ZM", "SN", "TD", "SO", "ZW", "TN"],
+          Anglo: ["US", "CA", "AU", "NZ"]
+        };
+        for (const [region, codes] of Object.entries(regions)) {
+          if (codes.includes(cc)) return region;
+        }
+        return "Global";
+      }
+
+      const namesByRegion = {
+        Bangladesh: {
+          firstM: "Rakib,Sakib,Tamim,Mushfiq,Mahmud,Hasan,Kamal,Jamal,Tariq,Imran,Arif,Rafiq,Shafiq,Mehedi,Tawhid,Nayeem,Fahim,Sagar,Rahim,Karim,Zayed,Salman,Akash,Bikash,Gaurav,Sajib,Rafi,Siyam,Jahid,Farhan,Nasir,Al-Amin,Momin,Sujon,Tushar,Rubel,Emon,Sohel,Kabir,Liton,Ashik,Riaz,Milon,Biplob,Shovon,Rakibul,Arafat,Nahid,Hridoy,Parvez,Sabbir,Mahfuz,Iqbal,Anwar,Habib,Naim,Asif,Shahadat,Kamrul,Monir,Sumon,Rasel,Tariqul,Shafayet,Nazmul,Robiul,Samin,Yasin,Abrar,Sadman,Nafis,Tahmid,Tanvir,Ashraful,Masum,Rashed,Sohag,Firoz,Faisal,Shahed,Jubayer,Syeed,Zubair,Anis,Tarek,Shakil,Touhid,Mostafa,Mizan,Jasim".split(","),
+          firstF: "Fatima,Khadija,Mariya,Sania,Nusrat,Tania,Rani,Noor,Shreya,Mitu,Riya,Ayesha,Meera,Ananya,Nadia,Sumi,Nila,Trisha,Mim,Mahi,Sadia,Tasnia,Sabrina,Zarin,Iqra,Afifa,Sabiha,Lamia,Farjana,Jannat,Nabila,Bushra,Fariha,Anika,Sumaiya,Tahrima,Farzana,Mithila,Raisa,Samira,Jasia,Tabassum,Safa,Marwa,Naima,Humaira,Kazi,Rubaiya,Nipa,Tanjila,Roksana,Shahnaz,Salma,Parvin,Afsana,Sonia,Munni,Juthi,Keya,Oyshee,Nishat,Srabanti,Mowmita,Tanisha,Zoya,Hafsa,Fawzia,Rahima,Kohinoor,Tahmina,Ferdousi,Shirina,Lipi,Ruma".split(","),
+          standardMatchM: "Hossain,Ali,Rahman,Miah,Islam,Uddin,Biswas,Saha,Ghosh,Roy,Majumder,Sarder,Howlader,Sheikh,Mia,Prodhan,Mridha,Das,Sarkar,Banerjee,Bhowmik,Chakraborty,Mondal,Mallick,Halder,Bairagi,Gazi,Molla,Bepari,Bhuiyan,Khandaker,Talukder,Shikder,Matin,Arfin,Zaman,Haque,Alam,Kabir,Tarafder,Sikder,Pasha,Molla,Khan,Chy,Chowdhury,Khondoker".split(","),
+          standardMatchF: "Akter,Begum,Khatun,Banu,Nesa,Biswas,Saha,Ghosh,Roy,Majumder,Sarder,Howlader,Sheikh,Prodhan,Mridha,Das,Sarkar,Banerjee,Bhowmik,Chakraborty,Mondal,Mallick,Halder,Bairagi,Gazi,Molla,Bepari,Bhuiyan,Zaman,Haque,Alam,Chowdhury,Khan,Ferdous,Jahan".split(","),
+          richMatch: "Chowdhury,Mirza,Bhuiyan,Mazumder,Talukder,Shikder,Zomindar,Khandaker,Pasha,Sikdar,Dewan,Syed,Bhuyan,Khondoker,Aga,Khan,Malik,Ispahani,Akij,Amin,Rahimafrooz".split(",")
+        },
+        India: {
+          firstM: "Vedant,Vihaan,Aarush,Shaurya,Atharv,Samar,Nirvaan,Ojas,Madhav,Kavish,Ritvik,Pranav,Aarav,Rohan,Kabir,Arjun,Aditya,Vikram,Siddharth,Ayaan,Ishaan,Gaurav,Amit,Raj,Vijay,Ajay,Sanjay,Anil,Sunil,Prakash,Manish,Deepak,Rakesh,Suresh,Naresh,Ramesh,Gopal,Krishna,Ram,Shiva,Vishnu,Narayan,Prabhu,Harish,Ashok,Karthik,Ravi,Dev,Arnav,Shaurya,Dhruv,Kiaan,Reyansh,Kian,Ayush,Manoj,Vinayak,Ritesh".split(","),
+          firstF: "Aanya,Myra,Sia,Navya,Kiara,Kashvi,Prisha,Ira,Nysa,Tanya,Avni,Manya,Ishani,Tarini,Saisha,Meher,Vanya,Rhea,Vaidika,Priya,Neha,Ayesha,Meera,Ananya,Zara,Kavya,Nisha,Shreya,Sneha,Aditi,Pooja,Aarti,Kiran,Jyoti,Sunita,Anita,Geeta,Sita,Rita,Mira,Rashmi,Komal,Renu,Swati,Shruti,Akanksha,Pallavi,Shikha,Bhumika,Diya,Suhana,Shanaya,Kyra,Amaira,Inaya,Misha,Aaradhya".split(","),
+          standardMatch: "Srivastava,Deshpande,Chaturvedi,Bhardwaj,Menon,Trivedi,Varma,Gokhale,Mishra,Naidu,Chauhan,Raman,Nair,Rastogi,Bhargava,Kamath,Sengupta,Pillai,Dixit,Shetty,Patel,Sharma,Das,Singh,Kumar,Gupta,Rao,Jain,Desai,Joshi,Bhatt,Reddy,Verma,Yadav,Iyer,Mukherjee,Banerjee,Chatterjee,Sen,Bose,Ghosh,Kapur,Malhotra,Chopra,Ahluwalia,Agarwal,Bansal,Mehta,Shah,Kulkarni,Jadhav".split(","),
+          richMatch: "Singhania,Ambani,Godrej,Hinduja,Mittal,Rathore,Mahindra,Bajaj,Oberoi,Poonawalla,Premji,Wadia,Tata,Birla,Adani,Kirloskar,Goenka,Nadar,Biyani".split(",")
+        },
+        Pakistan: {
+          firstM: "Zarrar,Shazil,Aariz,Ayaan,Zohan,Daniyal,Zaviyar,Rayyan,Raahim,Huzaifa,Armaan,Waleed,Arsalan,Maaz,Ibtisam,Hashir,Zain,Faiq,Omar,Amir,Tariq,Yusuf,Mustafa,Noor,Hasan,Farid,Ali,Zayd,Bilal,Hamza,Abdullah,Shahzaib,Faizan,Kamran,Asad,Jawad,Saad,Usman,Waqar,Junaid,Shoaib,Faisal,Naveed,Tahir,Noman,Salman,Imran,Shehryar,Adeel,Farhan,Kashif,Qasim,Umar,Taimoor,Ammar".split(","),
+          firstF: "Zimal,Hareem,Inaya,Zaynab,Mirab,Hoorain,Anaya,Aaira,Mishal,Rohail,Rida,Areej,Maham,Nashra,Faryal,Sumbal,Eshaa,Nimra,Fatima,Aisha,Zainab,Mariam,Salma,Mona,Nada,Reem,Nour,Yasmin,Hira,Sana,Amna,Rabia,Sadia,Zoya,Iqra,Kinza,Aiman,Minal,Sajal,Mahnoor,Nida,Kiran,Samina,Shabana,Rubina,Aqsa,Ayesha,Ghazala,Uzma,Shumaila,Sobia".split(","),
+          standardMatch: "Durrani,Leghari,Qureshi,Ansari,Hashmi,Tirmizi,Abbasi,Shirazi,Gilani,Gabol,Bugti,Jatoi,Khawaja,Lakhani,Vohra,Lohar,Farooqi,Ahmed,Ali,Hassan,Hussain,Mahmoud,Ibrahim,Khalil,Rahman,Khan,Malik,Shah,Sheikh,Baloch,Syed,Butt,Iqbal,Chaudhry,Raja,Dar,Baig,Memon,Abbas,Lodhi,Zubairi,Pirzada,Kayani,Tareen".split(","),
+          richMatch: "Bhutto,Zardari,Makhdoom,Qazi,Bukhari,Hashwani,Dawood,Saigol,Habib,Nawab,Magsi,Sharif,Sultan,Mirza,Nizami,Khattak".split(",")
+        },
+        SouthAsia: {
+          firstM: "Dineth,Pasan,Kavindu,Kasun,Nipun,Udesh,Anish,Saugat,Nima,Karma,Tendel,Ugyen,Bikash,Rohan,Aarav,Sunil,Kamal,Aditya,Tenzin,Vikram,Dorje,Namgay,Sonam,Pasang,Tashi,Nuwan,Chathura,Dasun,Pramod,Roshan,Sanjeewa".split(","),
+          firstF: "Senuri,Hiruni,Nethmi,Oshadi,Sanduni,Asmita,Shristi,Nawang,Pema,Deki,Tshering,Sonam,Diksha,Priya,Zara,Meera,Ayesha,Chimi,Kinley,Tenzin,Tashi,Nimasha,Thilini,Sachini,Amali,Dulani".split(","),
+          standardMatch: "Bandara,Wickremasinghe,Dissanayake,Koirala,Thapa,Gurung,Dorji,Wangchuk,Shrestha,Tamang,Lama,Sherpa,Patel,Sharma,Das,Ali,Singh,Kumar,Gupta,Khan,Rahman,Silva,Perera,Fernando,De Silva,Rajapaksa,Jayawardena,Kumara,Ratnayake,Perera".split(","),
+          richMatch: "Jayewardene,Senanayake,Wangchuck,Rana,Shah,Rajapaksa,Thakur,Basnet,Chowdhury,Mirza,Nawab,Singhania,Maharaj,Sultan,Bhandari".split(",")
+        },
+        EastAsia: {
+          firstM: "Ren,Minato,Yuma,Haru,Sota,Min-jun,Do-yun,Seo-jun,Ha-jun,Tian,Zhi,Mingze,Yichen,Haoyu,Bolin,Wei,Hiroshi,Kenji,Ji-hoon,Akira,Jun,Chen,Takumi,Dong-yoon,Jin,Xi,Yong,Xiao,Chien,Haruto,Jian,Hao,Yuze,Ming,Bo,Kai,Ryo,Taiki,Yuta,Hyun-woo,Ji-ho,Gun-woo,Joon-ho,Zhihao,Zixuan".split(","),
+          firstF: "Himari,Koharu,Rin,Mio,Yua,Seo-yeon,Ji-yoo,Ha-yoon,Ji-woo,Ji-ah,Yuxin,Xinyi,Zihan,Yutong,Shiqi,Min-ji,Sakura,Yuki,Mei,Ying,Hana,Ling,Yui,Aoi,Jing,Fang,Li,Xia,Yan,Hina,Nanami,Sora,Ye-jin,So-yoon,Hye-jin,Jia,Yuanyuan,Yuting".split(","),
+          standardMatch: "Nakamura,Kobayashi,Saito,Yamamoto,Matsumoto,Kang,Cho,Yoon,Jang,Im,Wu,Xu,Sun,Zhu,Ma,Hu,Guo,Lin,Zheng,Gao,Chen,Wang,Li,Sato,Kim,Lee,Park,Nguyen,Tanaka,Suzuki,Choi,Zhang,Liu,Yang,Huang,Takahashi,Watanabe,Ito,Jiang,He,Chiu".split(","),
+          richMatch: "Tokugawa,Fujiwara,Matsudaira,Takeda,Samsung,Hyundai,Han,Zhou,Zhao,Xiao,Li Ka-shing,Ho,Koo,Cheung,Zaibatsu,Minamoto,Taira,Kamakura,Heian,Tencent,Alibaba".split(",")
+        },
+        MiddleEast: {
+          firstM: "Ziad,Yazan,Karam,Sami,Rami,Fares,Nadim,Laith,Jad,Zayn,Qais,Basil,Kinza,Rayan,Tamer,Ammar,Omar,Amir,Tariq,Yusuf,Mustafa,Noor,Hasan,Farid,Samud,Ali,Khalid,Bilal,Hamza,Abdullah,Ibrahim,Mohammed,Mahmoud,Saeed,Yasser,Fadi,Nabil,Majed,Hatem,Karim,Wael,Ghassan,Tarek,Marwan".split(","),
+          firstF: "Layan,Tala,Hala,Rana,Jana,Maha,Saba,Najwa,Rasha,Lina,Reem,Nour,Bayan,Lama,Haya,Dina,Ghalia,Fatima,Leila,Aisha,Zainab,Mariam,Salma,Mona,Nada,Yasmin,Safa,Marwa,Noha,Nadia,Zeina,Aya,Dania,Farah,Ghada,Haifa".split(","),
+          standardMatch: "Khoury,Nassar,Haddad,Darwish,Najjar,Sleiman,Ayoub,Maalouf,Chahine,Kanaan,Sabbagh,Touma,Assaf,Zahr,Fahmy,Ahmed,Ali,Hassan,Hussain,Mahmoud,Ibrahim,Khalil,Rahman,Mansour,Saleh,Youssef,Farouk,El-Sayed,Salem,Saad,Eid,Ghanem,Harb,Shami".split(","),
+          richMatch: "Olayan,Sawiris,Hariri,Mikati,Al-Fayed,Al-Saud,Al-Maktoum,Al-Nahyan,Al-Hashimi,Al-Sabah,Bin Laden,Sultan,Emir,Al-Thani,Al-Khalifa,Al-Qasimi".split(",")
+        },
+        Europe: {
+          firstM: "Milan,Emil,Oskar,Anton,Theodor,Finn,Raphaël,Maël,Jules,Léo,Matteo,Diego,Olav,Sven,Nils,Lars,Arthur,Lukas,Mateo,Felix,Hugo,Antoine,Maximilian,Julian,Frederik,Leon,Paul,Louis,Lucas,Noah,Victor,Gabriel,Liam,Elias,Jonas,Oscar,William,George,Jack,Harry,Thomas,Jacob,Oliver,Charlie".split(","),
+          firstF: "Leonie,Lina,Mathilda,Frieda,Ida,Greta,Léna,Chloé,Inès,Mila,Léa,Elara,Freya,Astrid,Signe,Clara,Sophie,Elena,Charlotte,Amelie,Emma,Mia,Anna,Marie,Camille,Alice,Louise,Sarah,Hannah,Ella,Olivia,Victoria,Isabella,Amelia,Emily,Jessica,Lily,Grace".split(","),
+          standardMatch: "Fischer,Weber,Meyer,Wagner,Becker,Hoffmann,Moreau,Laurent,Simon,Michel,Roux,Vincent,Bianchi,Romeo,Lombardi,Moretti,Fontaine,Dubois,Müller,Rossi,Schmidt,Costa,Silva,Kowalski,Lefebvre,Hansen,Russo,Ricci,Marino,García,Gómez,Fernández,López,Martínez,González".split(","),
+          richMatch: "von Thurn und Taxis,Lichtenstein,Saxe-Coburg,Hohenzollern,von Hapsburg,de Bourbon,Windsor,Visconti,Rothschild,Bismarck,Sforza,Romanov,Medici,Kensington,Mountbatten,de Medici,Grimaldi,Bernadotte".split(",")
+        },
+        Colombia: {
+          firstM: "Esteban,Mauricio,Sergio,Camilo,Óscar,Nicolás,Julián,Fabián,Emiliano,Jerónimo,Martín,Maximiliano,Alejandro,Carlos,Andrés,Juan,Diego,Mateo,Sebastián,Luis,Daniel,Gabriel,Jorge,Miguel,Felipe,Pedro,David,Simón,Tomás,Samuel,Manuel,Alfonso".split(","),
+          firstF: "Tatiana,Catalina,Juana,Antonia,Juliana,Salomé,Isabela,Luciana,Valery,Emilia,Samantha,Celeste,Valentina,Camila,Mariana,Isabella,Daniela,Sofia,Natalia,Gabriela,Laura,Andrea,Paula,Carolina,María,Luna,Manuela,Valeria,Diana,Luz,Victoria,Gloria".split(","),
+          standardMatch: "Restrepo,Jaramillo,Osorio,Montoya,Ríos,Grisales,Alzate,Yepes,Arango,Zuluaga,Hincapié,Cadavid,Bustamante,Castañeda,Londoño,Rodríguez,Gómez,González,García,Martínez,López,Pérez,Díaz,Hernández,Sánchez,Vargas,Ramírez,Gutiérrez,Muñoz,Rojas".split(","),
+          richMatch: "Santo Domingo,Sarmiento,Ardila Lülle,Echeverri,Uribe,Vélez,Botero,Santander,Gilinski,Echavarría,Espinosa,Pachón".split(",")
+        },
+        LatinAmerica: {
+          firstM: "Bautista,Lorenzo,Gael,Dante,Renzo,Alonso,Facundo,Ciro,Bastián,Tiziano,Agustín,Ignacio,Simón,Máximo,Iker,Santiago,Mateo,Thiago,Diego,Gabriel,Alejandro,Leonardo,Emiliano,Sebastián,Matías,Nicolás,Samuel,Martín,Daniel,Joaquín,Tomás,Benjamín,Lucas,David,Felipe,Juan,Pedro,Carlos,José,Luis,Enzo,Bruno,Luciano,Lautaro,Emilio".split(","),
+          firstF: "Delfina,Zoe,Micaela,Rosario,Mora,Pilar,Lola,Candela,Bianca,Amparo,Malena,Luna,Romina,Ainara,Guadalupe,Valentina,Camila,Isabella,Lucia,Sofia,Valeria,Mariana,Renata,Natalia,Julieta,Martina,Catalina,Emma,Antonella,Emilia,Victoria,Luciana,Génesis,María,Mía,Paula,Daniela,Agustina,Josefina,Florencia,Alma,Olivia,Mia".split(","),
+          standardMatch: "Mendez,Ruiz,Alvarez,Castillo,Fernandez,Gimenez,Rojas,Vargas,Ortiz,Molina,Navarro,Delgado,Vega,Rios,Campos,Garcia,Martinez,Rodriguez,Lopez,Gonzalez,Perez,Sanchez,Ramirez,Torres,Flores,Gomez,Diaz,Reyes,Cruz,Morales,Gutierrez,Silva,Castro,Soto,Alonso".split(","),
+          richMatch: "Mendoza,Castellanos,Figueroa,Velazquez,Valverde,Alvarado,Slim,Motta,Cisneros,Azcárraga,Arellano,Escobar,de la Cruz,Villalobos,Bustamante,Cervantes,Garza,Luksic,Salinas".split(",")
+        },
+        Africa: {
+          firstM: "Chukwudi,Emeka,Oluwaseun,Bongani,Sanele,Ziyad,Tarik,Sekou,Jengo,Kato,Tau,Ayodele,Babajide,Simba,Thabang,Kwame,Jabari,Kofi,Malik,Chidi,Eze,Obinna,Thabo,Sipho,Mandla,Dakarai,Zane,Amadi,Chinonso,Kwaku,Nana,Dayo,Lekan,Teboho".split(","),
+          firstF: "Zodwa,Thandeka,Lerato,Ayanda,Makena,Zari,Imani,Dalila,Abina,Kesia,Halima,Adesuwa,Folashade,Ngozi,Amaka,Nia,Amara,Chioma,Amina,Zuri,Ayo,Oluwa,Chika,Bisi,Lindiwe,Nandi,Fatoumata,Aissatou,Mariama,Binta,Nneka,Asha,Zama".split(","),
+          standardMatch: "Ogunleye,Baloyi,Ndlovu,Dlamini,Adeyemi,Chukwu,Nwosu,Kalu,Guye,Sarr,Sow,Ba,Syll,Diop,Fall,Faye,Okafor,Mensah,Diallo,Abebe,Kamara,Keita,Ndiaye,Moyo,Kone,Traore,Cisse,Touré,Olu,Adebayo,Eze,Okoro,Tadesse,Bekele".split(","),
+          richMatch: "Motsepe,Rupert,Bekker,Dewji,Sawiris,Dangote,Oppenheimer,Mansa,Otedola,Adenuga,Bakhresa,Mobutu,Solomon,Abiolu,Sauvage,Kenyatta,Elumelu".split(",")
+        },
+        Anglo: {
+          firstM: "Arthur,Harrison,Oscar,Edward,Theodore,Rowan,Asher,Silas,Declan,Ezra,Felix,Jasper,Miles,Tristan,Gideon,Holden,Brooks,James,William,Alexander,Oliver,Benjamin,Henry,John,Robert,Michael,David,Richard,Joseph,Charles,Thomas,Daniel,Matthew,Anthony,Donald,Mark,Paul,Steven,Andrew,Kenneth,Joshua,Kevin,Brian,George,Ronald,Timothy,Jason,Jack,Harry,Logan,Mason,Ethan,Jackson".split(","),
+          firstF: "Eleanor,Hazel,Violet,Aurora,Luna,Stella,Ivy,Willow,Ruby,Cora,Maeve,Iris,Clara,Genevieve,Elodie,Sloane,Freya,Emma,Charlotte,Victoria,Elizabeth,Sophia,Mary,Patricia,Jennifer,Linda,Barbara,Susan,Jessica,Sarah,Karen,Lisa,Nancy,Betty,Margaret,Sandra,Ashley,Kimberly,Emily,Donna,Michelle,Carol,Amanda,Melissa,Deborah,Olivia,Chloe,Abigail,Harper,Avery".split(","),
+          standardMatch: "Gallagher,Donovan,Fletcher,Mercer,Shepherd,Vance,Gaines,Thornton,Prescott,Benson,Hayes,Wallace,Rhodes,Keller,Holden,Smith,Johnson,Williams,Brown,Jones,Miller,Davis,Wilson,Anderson,Taylor,Thomas,Moore,Jackson,Martin,Lee,Thompson,White,Harris,Clark,Lewis,Robinson,Walker,Young,Allen,King,Wright,Scott,Hill,Green,Adams,Nelson,Baker,Hall,Rivera,Campbell,Mitchell".split(","),
+          richMatch: "Rothschild,Kensington,Wellington,Sterling,Sinclair,Wentworth,Winchester,Vanderbilt,Astor,Carnegie,Koch,Hearst,Pritzker,DuPont,Rockefeller,Morgan,Walton,Mars,Bezos,Musk,Ellison,Gates,Buffett,Bloomberg,Forbes".split(",")
+        },
+        Global: {
+          firstM: "Zack,Ian,Ron,Hal,Gil,Roy,Mac,Rex,Ray,Jay,Orion,Zayn,Levi,Beau,Finn,Adam,Leo,Felix,Noah,Kai,Ezra,Luca,Eli,Sam,Dan,Tom,Ben,Jon,Alex,Max,Victor,Elias,Mikhail,Ivan,Hans,Lars,Dmitry,Boris,Igor,Sergei,Vladimir,Pavel,Vlad,Oleg".split(","),
+          firstF: "Zoe,Chloe,Ruby,Lucy,Lily,Rose,Ivy,Ella,Ava,Nora,Cara,Mia,Lia,Nova,Aria,Mila,Cleo,Zara,Maya,Iris,Nina,Elia,Stella,Anna,Eva,Sofia,Clara,Isabella,Nina,Alina,Yana,Polina,Elena,Irina,Olga,Svetlana,Tatiana,Anastasia,Ekaterina".split(","),
+          standardMatchM: "Beyer,Fischer,Petrov,Sokolov,Popov,Gonzalez,Silva,Novak,Kovacs,Horvath,Ricci,Moreau,Weber,Russo,Patel,Garcia,Chen,Ivanov,Kim,Ali,Cruz,Singh,Costa,Rossi,Müller,Wang,Li,Zhang,Liu,Kumar,Sato,Nguyen,Smirnov,Wagner,Lopez,Smirnov,Volkov,Lebedev,Kozlov,Morozov".split(","),
+          standardMatchF: "Beyer,Fischer,Petrova,Sokolova,Popova,Gonzalez,Silva,Novak,Kovacs,Horvath,Ricci,Moreau,Weber,Russo,Patel,Garcia,Chen,Ivanova,Kim,Ali,Cruz,Singh,Costa,Rossi,Müller,Wang,Li,Zhang,Liu,Kumar,Sato,Nguyen,Smirnova,Wagner,Lopez,Smirnova,Volkova,Lebedeva,Kozlova,Morozova".split(","),
+          richMatch: "Sterling,Sinclair,Beaumont,Lancaster,Carmichael,Medici,Borgia,Tudor,Bourbon,Habsburg,Romanov,Rockefeller,Astor,Vanderbilt,Carnegie,Rothschild,Romanov,Gagarin,Pushkin,Tolstoy".split(",")
+        }
+      };
+
+      function initPersonaUI() {
+        if (!window.currentIpData) return;
+        if (window.personaGenderPref) {
+            document.getElementById("persona-setup").classList.add("hidden");
+            document.getElementById("persona-setup").classList.remove("flex");
+            document.getElementById("persona-display").classList.remove("hidden");
+            document.getElementById("persona-display").classList.add("flex");
+            generateNewPersona();
+        } else {
+            document.getElementById("persona-display").classList.add("hidden");
+            document.getElementById("persona-display").classList.remove("flex");
+            document.getElementById("persona-setup").classList.remove("hidden");
+            document.getElementById("persona-setup").classList.add("flex");
+        }
+      }
+
+      function showPersonaSetup() {
+        document.getElementById("persona-display").classList.add("hidden");
+        document.getElementById("persona-display").classList.remove("flex");
+        document.getElementById("persona-setup").classList.remove("hidden");
+        document.getElementById("persona-setup").classList.add("flex");
+      }
+
+      function savePersonaPrefs() {
+        const gender = document.getElementById("persona-gender").value;
+        const age = document.getElementById("persona-age").value;
+        
+        window.personaGenderPref = gender;
+        window.personaAgePref = age;
+        localStorage.setItem("personaGenderPref", gender);
+        if (age) localStorage.setItem("personaAgePref", age);
+        
+        initPersonaUI();
+      }
+
+      function generateNewPersona() {
+        if (!window.currentIpData) return;
+        const ipData = window.currentIpData;
+        
+        const osName = getOS().toLowerCase();
+        let osVibe = "standard";
+        let titles = [];
+        
+        if (osName.includes("mac") || osName.includes("ios") || osName.includes("iphone") || osName.includes("ipad")) {
+          osVibe = "rich";
+          titles = ["The Elite", "The Tycoon", "The Visionary", "Duke", "Baron", "Lord"];
+        } else if (osName.includes("win")) {
+          osVibe = "standard";
+          titles = ["The Professional", "The Executive", "The Strategist", "Director"];
+        } else if (osName.includes("linux") || osName.includes("ubuntu")) {
+          osVibe = "tech";
+          titles = ["The Hacker", "The Wizard", "Root", "The Mastermind", "Coder"];
+        } else {
+          osVibe = "standard";
+          titles = ["The Explorer", "The Nomad", "The Citizen", "The Guide"];
+        }
+
+        const cc = ipData.countryShort ? ipData.countryShort.toUpperCase() : "UNKNOWN";
+        const regionKey = getRegionInfo(cc);
+        const nameData = namesByRegion[regionKey] || namesByRegion["Global"];
+
+        const firstNamesM = nameData.firstM || nameData.first;
+        const firstNamesF = nameData.firstF || nameData.first;
+
+        const gender = window.personaGenderPref || "male";
+        const firstNamesList = gender === "female" ? firstNamesF : firstNamesM;
+        
+        let lastNames;
+        if (osVibe === "rich") {
+            lastNames = (gender === "female" && nameData.richMatchF) ? nameData.richMatchF : ((gender === "male" && nameData.richMatchM) ? nameData.richMatchM : nameData.richMatch);
+        } else {
+            lastNames = (gender === "female" && nameData.standardMatchF) ? nameData.standardMatchF : ((gender === "male" && nameData.standardMatchM) ? nameData.standardMatchM : nameData.standardMatch);
+        }
+        
+        const firstName = firstNamesList[Math.floor(Math.random() * firstNamesList.length)] || "Unknown";
+        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)] || "Entity";
+        
+        let finalName = `${firstName} ${lastName}`;
+        const useComplex = Math.random() > 0.4;
+
+        if (useComplex) {
+            let m;
+            let safety = 10;
+            do {
+                m = firstNamesList[Math.floor(Math.random() * firstNamesList.length)];
+                safety--;
+            } while (m === firstName && safety > 0);
+            
+            let l2;
+            safety = 10;
+            do {
+                l2 = lastNames[Math.floor(Math.random() * lastNames.length)];
+                safety--;
+            } while (l2 === lastName && safety > 0);
+
+            if (m !== firstName && l2 !== lastName) {
+                switch (regionKey) {
+                    case "LatinAmerica":
+                    case "Colombia":
+                        finalName = Math.random() > 0.5 ? `${firstName} ${m} ${lastName}` : `${firstName} ${lastName} ${l2}`;
+                        break;
+                    case "EastAsia":
+                        finalName = `${firstName} ${lastName}`;
+                        break;
+                    case "Bangladesh":
+                    case "Pakistan":
+                    case "SouthAsia":
+                        if (gender === "female") {
+                            finalName = `${firstName} ${lastName} ${m}`;
+                        } else {
+                            finalName = Math.random() > 0.5 ? `${firstName} ${lastName} ${m}` : `${firstName} ${m} ${lastName}`;
+                        }
+                        break;
+                    default:
+                        finalName = `${firstName} ${m} ${lastName}`;
+                }
+            }
+        }
+
+        const personaEl = document.getElementById("digital-persona");
+        
+        if (personaEl) {
+          personaEl.innerText = finalName;
+          personaEl.classList.remove("opacity-0", "translate-y-2");
+        }
+      }
+
+      function toggleCountry() {
+        const span = document.getElementById("country-name");
+        if (!span) return;
+        const current = span.innerText;
+        const full = span.getAttribute("data-full");
+        const short = span.getAttribute("data-short");
+        span.innerText = current === full ? short : full;
+      }
+
+      function getFlagEmojiLocal(cc) {
+        if (!cc || cc === "UN" || cc === "Unknown") return "🏳️";
+        return cc
+          .toUpperCase()
+          .replace(/./g, (char) =>
+            String.fromCodePoint(char.charCodeAt(0) + 127397),
+          );
+      }
+
+      let isCountryListRendered = false;
+
+      function openCountryModal() {
+        const modal = document.getElementById("country-modal");
+        const inner = document.getElementById("country-modal-inner");
+        
+        if (!isCountryListRendered) {
+          const listObj = window.countryMap || {};
+          const listEl = document.getElementById("country-list");
+
+          const arr = Object.entries(listObj).sort((a, b) =>
+            a[0].localeCompare(b[0]),
+          );
+          listEl.innerHTML = arr
+            .map(
+              ([name, code]) => `
+                  <div class="country-item flex items-center justify-between p-2 rounded-lg hover:bg-white/[0.04] cursor-pointer transition-colors group select-none flex-shrink-0" data-name="${name.toLowerCase()}" onclick="this.querySelector('.short-code').classList.toggle('hidden')">
+                      <div class="flex items-center gap-3 w-full pr-2">
+                          <div class="text-[1.35rem] leading-none filter drop-shadow select-none">${getFlagEmojiLocal(code)}</div>
+                          <div class="text-[0.9rem] text-gray-300 group-hover:text-white flex-1 country-name transition-colors break-words whitespace-normal text-left">${name}</div>
+                      </div>
+                      <div class="short-code hidden bg-gray-800/80 px-1.5 py-0.5 rounded text-[0.7rem] text-blue-400 font-mono tracking-wider flex-shrink-0 border border-gray-700/50 shadow-sm transition-all">${code}</div>
+                  </div>
+              `,
+            )
+            .join("");
+          isCountryListRendered = true;
+        }
+
+        document.getElementById("country-search").value = "";
+        filterCountries(); // Reset display to show all
+
+        modal.classList.remove("opacity-0", "pointer-events-none");
+        inner.classList.remove("scale-95");
+        inner.classList.add("scale-100");
+      }
+
+      function closeCountryModal() {
+        const modal = document.getElementById("country-modal");
+        const inner = document.getElementById("country-modal-inner");
+
+        modal.classList.add("opacity-0", "pointer-events-none");
+        inner.classList.remove("scale-100");
+        inner.classList.add("scale-95");
+      }
+
+      function filterCountries() {
+        const val = document.getElementById("country-search").value.toLowerCase();
+        const items = document.querySelectorAll(".country-item");
+
+        if (val === '') {
+            items.forEach(el => el.style.display = 'flex');
+            return;
+        }
+
+        items.forEach((el) => {
+          const name = el.getAttribute("data-name");
+          if (name.includes(val)) {
+            el.style.display = "flex";
+          } else {
+            el.style.display = "none";
+          }
+        });
+      }
+
+      // Function allowing click-to-copy
+      function copyText(id) {
+        let text = "";
+        if (id === "ip") {
+          text = globalData ? globalData.ip : "";
+        } else if (id === "asn") {
+          text = globalData ? globalData.asn : "";
+        } else if (id === "country") {
+          const cText = document.getElementById("country-text");
+          text = cText
+            ? cText.innerText
+            : document.getElementById(id).innerText;
+        } else if (id === "ip_type") {
+          text = globalData ? globalData.ip_type : "";
+        } else {
+          text = document.getElementById(id).innerText;
+        }
+
+        if (text && text !== "..." && text !== "Unknown") {
+          if (id === "timezone") {
+            if (text.includes("/")) {
+              text = text.split("/").pop().replace(/_/g, " ");
+            }
+          }
+          navigator.clipboard.writeText(text).then(() => {
+            showToast();
+          });
+        }
+      }
+
+      // Toast display handler
+      function showToast() {
+        const toast = document.getElementById("toast");
+        toast.className = "show";
+        setTimeout(() => {
+          toast.className = toast.className.replace("show", "");
+        }, 2800);
+      }
+
+      const fieldsCfg = [
+        { id: "ip", label: "IP ADDRESS", icon: "wifi", mono: true },
+        { id: "ip_type", label: "TYPE", icon: "tag" },
+        { id: "asn", label: "ASN", icon: "shield", mono: true, copy: true },
+        { id: "timezone", label: "TIMEZONE", icon: "clock", copy: true },
+        { id: "city", label: "CITY", icon: "map-pin" },
+        { id: "region", label: "REGION", icon: "map" },
+        { id: "os", label: "OS", icon: "monitor" },
+        { id: "isp", label: "ISP", icon: "server" },
+      ];
+
+      const rowHTML = (f) => `
+            <div class="py-2.5 px-4 divider flex items-start justify-between gap-3 hover:bg-white/[0.02] transition-colors" id="row-${f.id}">
+                <div class="flex items-center gap-2 mt-0.5">
+                    <i data-lucide="${f.icon}" class="text-gray-400 w-4 h-4 flex-shrink-0" id="${f.id}-icon"></i>
+                    <div class="label-text mb-0 mt-[1px]" id="label-${f.id}">${f.label}</div>
+                </div>
+                <div class="flex items-start justify-end gap-2 pt-0.5 min-w-0 w-full" id="val-container-${f.id}">
+                    <div class="text-value text-[0.95rem] leading-tight text-right break-words ${f.mono ? "font-mono tracking-tight" : ""} ${f.trunc ? "truncate max-w-[200px]" : "w-full max-w-[240px]"}" id="${f.id}">...</div>
+                    ${f.copy ? `<button onclick="copyText('${f.id}')" class="p-1.5 bg-gray-700/60 hover:bg-gray-600 border border-gray-500/50 rounded-md transition-colors text-gray-300 hover:text-white outline-none shadow-sm flex-shrink-0 -mt-0.5" title="Copy"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>` : ""}
+                </div>
+            </div>`;
+
+      const group1 = fieldsCfg.slice(0, 4);
+      const group2 = fieldsCfg.slice(4);
+
+      document.getElementById("details-list").innerHTML = `
+            <div class="border border-gray-800/80 rounded-xl mx-2 my-2 overflow-hidden">
+                ${group1.map(rowHTML).join("")}
+            </div>
+            <div class="flex flex-col pb-1">
+                ${group2.map(rowHTML).join("")}
+            </div>`;
+
+      lucide.createIcons();
+
+      // Kickoff logic on page load
+      initCloudflareCheck();
+      setupOS();
+      fetchData();
+    </script>
+  </body>
+</html>
